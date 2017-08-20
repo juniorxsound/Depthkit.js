@@ -44566,10 +44566,31 @@ var DepthKit = function (_EventEmitter) {
 
         _classCallCheck(this, DepthKit);
 
-        //Saftey first
         var _this = _possibleConstructorReturn(this, (DepthKit.__proto__ || Object.getPrototypeOf(DepthKit)).call(this));
 
-        if (!THREE) console.warn('Three.js was not found, perhaps you forgot to include it before DepthKit.js?');
+        _this.manager = new THREE.LoadingManager();
+        _this.jsonLoader = new THREE.FileLoader();
+        _this.jsonLoader.setResponseType('json');
+        console.log(_this.jsonLoader);
+        _this.jsonLoader.load(
+        // resource URL
+        '../assets/Chae/Chae_Demo_Upres.txt',
+
+        // Function when resource is loaded
+        function (data) {
+            // output the text to the console
+            console.log(data);
+        },
+
+        // Function called when download progresses
+        function (xhr) {
+            console.log(xhr.loaded / xhr.total * 100 + '% loaded');
+        },
+
+        // Function called when download errors
+        function (xhr) {
+            console.error('An error happened');
+        });
 
         //Load the shaders
         var rgbdFrag = glsl(["#define GLSLIFY 1\n"]);
@@ -44654,6 +44675,9 @@ var DepthKit = function (_EventEmitter) {
 
             return geo;
         }
+    }, {
+        key: 'update',
+        value: function update(dt) {}
     }]);
 
     return DepthKit;
@@ -44670,6 +44694,7 @@ var _depthkit2 = _interopRequireDefault(_depthkit);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-window.DepthKit = _depthkit2.default;
+//Make it global
+window.DepthKit = _depthkit2.default; //DepthKit.js class
 
 },{"./depthkit":4}]},{},[5]);

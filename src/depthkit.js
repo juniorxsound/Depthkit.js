@@ -26,8 +26,30 @@ export default class DepthKit extends EventEmitter {
     constructor(_type = 'mesh', _props, _movie, _poster) {
         super();
 
-        //Saftey first
-        if (!THREE) console.warn('Three.js was not found, perhaps you forgot to include it before DepthKit.js?');
+        this.manager = new THREE.LoadingManager();
+        this.jsonLoader = new THREE.FileLoader();
+        this.jsonLoader.setResponseType('json');
+        console.log(this.jsonLoader);
+        this.jsonLoader.load(
+            // resource URL
+            '../assets/Chae/Chae_Demo_Upres.txt',
+
+            // Function when resource is loaded
+            function (data) {
+                // output the text to the console
+                console.log(data)
+            },
+
+            // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            },
+
+            // Function called when download errors
+            function (xhr) {
+                console.error('An error happened');
+            }
+        );
 
         //Load the shaders
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
@@ -60,7 +82,7 @@ export default class DepthKit extends EventEmitter {
         });
 
         this.mesh = new THREE.Mesh(this.geo, this.material);
-        
+
         return this.mesh;
     }
 
@@ -111,7 +133,7 @@ export default class DepthKit extends EventEmitter {
                 }
 
                 break;
-            
+
             //Add case for points
 
             default:
@@ -122,4 +144,7 @@ export default class DepthKit extends EventEmitter {
         return geo;
     }
 
+    update(dt) {
+
+    }
 }
