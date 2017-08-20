@@ -1,0 +1,46 @@
+{
+  "name": "depthkit.js",
+  "version": "1.0.0",
+  "description": "A plugin for rendering DepthKit volumetric videos using Three.js",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "http-server",
+    "watch": "watchify src/index.js -o dist/depthkit.js -v",
+    "build": "browserify src/index.js  | uglifyjs -mc warnings=false > dist/depthkit.min.js"
+  },
+  "keywords": [
+    "WebGL",
+    "three.js",
+    "volumetric",
+    "3D",
+    "depthkit"
+  ],
+  "author": "Or Fleisher",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
+    "event-emitter-es6": "^1.1.5",
+    "glslify": "^6.1.0",
+    "http-server": "^0.10.0",
+    "uglify-js": "^3.0.28",
+    "watchify": "^3.9.0"
+  },
+  "dependencies": {
+    "three": "^0.87.1"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ]
+        }
+      ],
+      "glslify"
+    ]
+  }
+}

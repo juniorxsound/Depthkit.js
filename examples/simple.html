@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Simple DepthKit example using Three.js</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background:#000;
+				color:#fff;
+				padding:0;
+				margin:0;
+				overflow:hidden;
+				font-family:georgia;
+				text-align:center;
+			}
+			a { color:skyblue; text-decoration:none }
+			#info {
+				position: absolute;
+				width: 100%;
+			}
+		</style>
+	</head>
+
+	<body>
+
+        <!--Three.js-->
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>-->
+
+        <!--DepthKit.js-->
+        <script src="../dist/depthkit.js"></script>
+
+		<div id="info">
+			<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple DepthKit example using Three.js<br/>
+			Written by <a href="http://orfleisher.com">juniorxsound</a>
+		</div>
+
+		<script>
+            var or = new DepthKit();
+            console.log(or);
+		</script>
+
+	</body>
+</html>
