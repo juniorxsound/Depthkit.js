@@ -25,32 +25,7 @@ export default class DepthKit extends EventEmitter {
 
     constructor(_type = 'mesh', _props, _movie, _poster) {
         super();
-
-        this.manager = new THREE.LoadingManager();
-        this.jsonLoader = new THREE.FileLoader();
-        this.jsonLoader.setResponseType('json');
-        console.log(this.jsonLoader);
-        this.jsonLoader.load(
-            // resource URL
-            '../assets/Chae/Chae_Demo_Upres.txt',
-
-            // Function when resource is loaded
-            function (data) {
-                // output the text to the console
-                console.log(data)
-            },
-
-            // Function called when download progresses
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-
-            // Function called when download errors
-            function (xhr) {
-                console.error('An error happened');
-            }
-        );
-
+  
         //Load the shaders
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
@@ -60,30 +35,45 @@ export default class DepthKit extends EventEmitter {
         this.VERTS_TALL = 256;
         this.precision = 3;
 
-        //Geomtery
-        this.geo = this.buildGeomtery(_type);
+        this.mesh = {
+            object: null
+        }
 
-        //Material
-        this.material = new THREE.ShaderMaterial({
-            uniforms: {
-                "map": { type: "t" },
-                "mindepth": { type: "f", value: 0.0 },
-                "maxdepth": { type: "f", value: 0.0 },
-                "uvdy": { type: "f", value: 0.5 },
-                "uvdx": { type: "f", value: 0.0 },
-                "width": { type: "f", value: 0.0 },
-                "height": { type: "f", value: 0.0 },
-                "opacity": { type: "f", value: 1.0 }
-            },
+        //Manages loading of assets internally
+        this.manager = new THREE.LoadingManager();
 
-            vertexShader: rgbdVert,
-            fragmentShader: rgbdFrag,
-            transparent: true
-        });
+        //Make sure to read the config file as json (i.e JSON.parse)        
+        this.jsonLoader = new THREE.FileLoader(this.manager);
+        this.jsonLoader.setResponseType('json');
+        this.jsonLoader.load(_props,
+            // Function when resource is loaded
+            data => {
+                //Geomtery
+                this.geo = this.buildGeomtery(_type);
 
-        this.mesh = new THREE.Mesh(this.geo, this.material);
+                //Material
+                this.material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        "map": { type: "t" },
+                        "mindepth": { type: "f", value: 0.0 },
+                        "maxdepth": { type: "f", value: 0.0 },
+                        "uvdy": { type: "f", value: 0.5 },
+                        "uvdx": { type: "f", value: 0.0 },
+                        "width": { type: "f", value: data.textureWidth },
+                        "height": { type: "f", value: data.textureHeight },
+                        "opacity": { type: "f", value: 1.0 }
+                    },
 
-        return this.mesh;
+                    vertexShader: rgbdVert,
+                    fragmentShader: rgbdFrag,
+                    transparent: true
+                });
+
+                this.mesh.object = new THREE.Mesh(this.geo, this.material);
+            }
+        );
+
+        return this;
     }
 
     buildGeomtery(type) {
