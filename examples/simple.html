@@ -1,44 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>Simple DepthKit example using Three.js</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-			body {
-				background:#000;
-				color:#fff;
-				padding:0;
-				margin:0;
-				overflow:hidden;
-				font-family:georgia;
-				text-align:center;
-			}
-			a { color:skyblue; text-decoration:none }
-			#info {
-				position: absolute;
-				width: 100%;
-			}
-		</style>
-	</head>
 
-	<body>
+<head>
+	<title>Simple DepthKit example using Three.js</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			background: #000;
+			color: #fff;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+			font-family: georgia;
+			text-align: center;
+		}
 
-        <!--Three.js-->
-		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>-->
+		a {
+			color: skyblue;
+			text-decoration: none
+		}
 
-        <!--DepthKit.js-->
-        <script src="../dist/depthkit.js"></script>
+		#info {
+			position: absolute;
+			width: 100%;
+		}
+	</style>
+</head>
 
-		<div id="info">
-			<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple DepthKit example using Three.js<br/>
-			Written by <a href="http://orfleisher.com">juniorxsound</a>
-		</div>
+<body>
 
-		<script>
-            var or = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt");
-            console.log(or);
-		</script>
+	<!--Three.js-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+	<!-- Orbit Controls -->
+	<script src="lib/OrbitControls.js"></script>
+	<!--DepthKit.js-->
+	<script src="../dist/depthkit.js"></script>
 
-	</body>
+	<div id="info">
+		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple DepthKit example using Three.js<br/>		Written by <a href="http://orfleisher.com">juniorxsound</a>
+	</div>
+
+	<script>
+		var renderer,
+			scene,
+			camera,
+			controls;
+
+		var character;
+
+		init();
+
+		function init() {
+
+			//Setup renderer
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			// Setup scene
+			scene = new THREE.Scene();
+
+			// Setup camera
+			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 500);
+			camera.position.set(0, 3, -4);
+
+			
+
+			// Setup controls
+			controls = new THREE.OrbitControls(camera);
+
+			//Grid helper
+			var size = 10;
+			var divisions = 10;
+
+			var gridHelper = new THREE.GridHelper(size, divisions);
+			scene.add(gridHelper);
+
+			// DepthKit character
+			character = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt", "../assets/Chae/Chae_Demo_Upres.mp4");
+			character.scale.set(0.001, 0.001, 0.001);
+			character.position.y = 1.1;
+			character.rotateZ(Math.PI / 2);
+			character.rotateX(Math.PI);
+			character.depthkit.play();
+			scene.add(character);
+
+			render();
+		}
+
+		function render() {
+
+			requestAnimationFrame(render);
+
+			renderer.render(scene, camera);
+
+		}
+	</script>
+
+</body>
+
 </html>
