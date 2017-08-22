@@ -60,7 +60,7 @@ export default class DepthKit extends EventEmitter {
 
         //Material
         this.material = new THREE.ShaderMaterial({
-            uniforms: {
+            uniforms: Object.assign( {
                 "diffuse": {
                     type: 'c',
                     value: new THREE.Color(0x0000ff)
@@ -108,90 +108,20 @@ export default class DepthKit extends EventEmitter {
                 "pointSize": {
                     type: "f",
                     value: 3.0
-                },
-                "ambientLightColor": { value: [] },
-
-                "directionalLights": {
-                    value: [], properties: {
-                        direction: {},
-                        color: {},
-
-                        shadow: {},
-                        shadowBias: {},
-                        shadowRadius: {},
-                        shadowMapSize: {}
-                    }
-                },
-
-                "directionalShadowMap": { value: [] },
-                "directionalShadowMatrix": { value: [] },
-
-                "spotLights": {
-                    value: [], properties: {
-                        color: {},
-                        position: {},
-                        direction: {},
-                        distance: {},
-                        coneCos: {},
-                        penumbraCos: {},
-                        decay: {},
-
-                        shadow: {},
-                        shadowBias: {},
-                        shadowRadius: {},
-                        shadowMapSize: {}
-                    }
-                },
-
-                "spotShadowMap": { value: [] },
-                "spotShadowMatrix": { value: [] },
-
-                "pointLights": {
-                    value: [], properties: {
-                        color: {},
-                        position: {},
-                        decay: {},
-                        distance: {},
-
-                        shadow: {},
-                        shadowBias: {},
-                        shadowRadius: {},
-                        shadowMapSize: {},
-                        shadowCameraNear: {},
-                        shadowCameraFar: {}
-                    }
-                },
-
-                "pointShadowMap": { value: [] },
-                "pointShadowMatrix": { value: [] },
-
-                "hemisphereLights": {
-                    value: [], properties: {
-                        direction: {},
-                        skyColor: {},
-                        groundColor: {}
-                    }
-                },
-
-                // TODO (abelnation): RectAreaLight BRDF data needs to be moved from example to main src
-                "rectAreaLights": {
-                    value: [], properties: {
-                        color: {},
-                        position: {},
-                        width: {},
-                        height: {}
-                    }
                 }
             },
+            THREE.UniformsLib['lights']),
             vertexShader: rgbdVert,
             fragmentShader: rgbdFrag,
-            transparent: true,
-            lights: true
-
+            lights: true,
+            transparent: true
         });
-
+        console.log(THREE.ShaderLib);
         //Make the shader material double sided
         this.material.side = THREE.DoubleSide;
+        
+        //Make sure it updates
+        this.material.needsUpdate = true;
 
         //Switch a few things based on selected rendering type and create the mesh
         switch (_type) {
@@ -262,7 +192,7 @@ export default class DepthKit extends EventEmitter {
                     ));
             }
         }
-
+        geo.computeFaceNormals();
         return geo;
     }
 

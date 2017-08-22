@@ -72,8 +72,8 @@ void main() {
 
     vUv.y = vUv.y * 0.5;// + 0.5;
 
-    vPos = (modelMatrix * vec4(position, 1.0 )).xyz;
-    vNormal = normalMatrix * normal;
+    vPos = (modelViewMatrix  * vec4(position, 1.0 )).xyz;
+    vNormal = (modelViewMatrix  * vec4(normal, 0.0)).xyz;
 
     vec3 hsl = rgb2hsl( texture2D( map, vUv ).xyz );
     vec4 pos = vec4( xyz( position.x, position.y, hsl.x ), 1.0 );

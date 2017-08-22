@@ -320,8 +320,8 @@ var DepthKit = function (_EventEmitter) {
         //Load the shaders
         var _this = _possibleConstructorReturn(this, (DepthKit.__proto__ || Object.getPrototypeOf(DepthKit)).call(this));
 
-        var rgbdFrag = glsl(["#define GLSLIFY 1\nuniform sampler2D map;\nuniform float opacity;\n\nuniform float uvdy;\nuniform float uvdx;\n\nvarying float visibility;\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vPos;\n\nvoid main() {\n\n    if ( visibility < 0.75 ) discard;\n\n    vec4 color = texture2D( map, vUv + vec2(uvdx, uvdy));\n    color.w = opacity;\n\n    gl_FragColor = color;\n    \n}"]);
-        var rgbdVert = glsl(["#define GLSLIFY 1\nuniform float mindepth;\nuniform float maxdepth;\n\nuniform float width;\nuniform float height;\n\nuniform bool isPoints;\nuniform float pointSize;\n\nuniform float time;\n\nvarying vec3 vNormal;\nvarying vec3 vPos;\n\n//TODO: make uniforms\nconst float fx = 1.11087;\nconst float fy = 0.832305;\n\nuniform sampler2D map;\n\n//Making z global\nfloat z;\n\nvarying float visibility;\nvarying vec2 vUv;\n\nvec3 rgb2hsl( vec3 color ) {\n    float h = 0.0;\n    float s = 0.0;\n    float l = 0.0;\n    float r = color.r;\n    float g = color.g;\n    float b = color.b;\n    float cMin = min( r, min( g, b ) );\n    float cMax = max( r, max( g, b ) );\n    l =  ( cMax + cMin ) / 2.0;\n    if ( cMax > cMin ) {\n        float cDelta = cMax - cMin;\n        // saturation\n        if ( l < 0.5 ) {\n            s = cDelta / ( cMax + cMin );\n        } else {\n            s = cDelta / ( 2.0 - ( cMax + cMin ) );\n        }\n\n        // hue\n        if ( r == cMax ) {\n            h = ( g - b ) / cDelta;\n        } else if ( g == cMax ) {\n            h = 2.0 + ( b - r ) / cDelta;\n        } else {\n            h = 4.0 + ( r - g ) / cDelta;\n        }\n\n        if ( h < 0.0) {\n            h += 6.0;\n        }\n        h = h / 6.0;\n\n    }\n    return vec3( h, s, l );\n}\n\nvec3 xyz( float x, float y, float depth ) {\n    z = depth * ( maxdepth - mindepth ) + mindepth;\n    return vec3( ( x / height  ) * z * fx, ( y / (width * 2.0)  ) * z * fy, - z );\n}\n\nvoid main() {\n\n    vUv = vec2( ( position.x + 512.0 ) / 1024.0 , ( position.y + 512.0  ) / 1024.0 );\n\n    vUv.y = vUv.y * 0.5;// + 0.5;\n\n    vPos = (modelMatrix * vec4(position, 1.0 )).xyz;\n    vNormal = normalMatrix * normal;\n\n    vec3 hsl = rgb2hsl( texture2D( map, vUv ).xyz );\n    vec4 pos = vec4( xyz( position.x, position.y, hsl.x ), 1.0 );\n    pos.z += 2600.0;\n\n    visibility = hsl.z * 2.1;\n\n    if(isPoints){\n        gl_PointSize = pointSize;\n    }\n\n    gl_Position = projectionMatrix * modelViewMatrix * pos;\n}"]);
+        var rgbdFrag = glsl(["#define GLSLIFY 1\nuniform sampler2D map;\nuniform float opacity;\n\nuniform float uvdy;\nuniform float uvdx;\n\nvarying float visibility;\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vPos;\n\nstruct PointLight {\n  vec3 color;\n  vec3 position;\n  float distance; \n};\n \nuniform PointLight pointLights[NUM_POINT_LIGHTS];\n\nvoid main() {\n\n    if ( visibility < 0.75 ) discard;\n\n    vec4 color = texture2D( map, vUv + vec2(uvdx, uvdy));\n    color.w = opacity;\n\n    // Pretty basic lambertian lighting...\n  vec4 addedLights = vec4(0.0,\n                          0.0,\n                          0.0,\n                          1.0);\n  for(int l = 0; l < NUM_POINT_LIGHTS; l++) {\n      vec3 lightDirection = normalize(vPos\n                            - pointLights[l].position);\n      addedLights.rgb += clamp(dot(-lightDirection,\n                               vNormal), 0.0, 1.0)\n                         * pointLights[l].color\n                         * 10.0;\n  }\n\n    gl_FragColor = color * addedLights;\n    \n}"]);
+        var rgbdVert = glsl(["#define GLSLIFY 1\nuniform float mindepth;\nuniform float maxdepth;\n\nuniform float width;\nuniform float height;\n\nuniform bool isPoints;\nuniform float pointSize;\n\nuniform float time;\n\nvarying vec3 vNormal;\nvarying vec3 vPos;\n\n//TODO: make uniforms\nconst float fx = 1.11087;\nconst float fy = 0.832305;\n\nuniform sampler2D map;\n\n//Making z global\nfloat z;\n\nvarying float visibility;\nvarying vec2 vUv;\n\nvec3 rgb2hsl( vec3 color ) {\n    float h = 0.0;\n    float s = 0.0;\n    float l = 0.0;\n    float r = color.r;\n    float g = color.g;\n    float b = color.b;\n    float cMin = min( r, min( g, b ) );\n    float cMax = max( r, max( g, b ) );\n    l =  ( cMax + cMin ) / 2.0;\n    if ( cMax > cMin ) {\n        float cDelta = cMax - cMin;\n        // saturation\n        if ( l < 0.5 ) {\n            s = cDelta / ( cMax + cMin );\n        } else {\n            s = cDelta / ( 2.0 - ( cMax + cMin ) );\n        }\n\n        // hue\n        if ( r == cMax ) {\n            h = ( g - b ) / cDelta;\n        } else if ( g == cMax ) {\n            h = 2.0 + ( b - r ) / cDelta;\n        } else {\n            h = 4.0 + ( r - g ) / cDelta;\n        }\n\n        if ( h < 0.0) {\n            h += 6.0;\n        }\n        h = h / 6.0;\n\n    }\n    return vec3( h, s, l );\n}\n\nvec3 xyz( float x, float y, float depth ) {\n    z = depth * ( maxdepth - mindepth ) + mindepth;\n    return vec3( ( x / height  ) * z * fx, ( y / (width * 2.0)  ) * z * fy, - z );\n}\n\nvoid main() {\n\n    vUv = vec2( ( position.x + 512.0 ) / 1024.0 , ( position.y + 512.0  ) / 1024.0 );\n\n    vUv.y = vUv.y * 0.5;// + 0.5;\n\n    vPos = (modelViewMatrix  * vec4(position, 1.0 )).xyz;\n    vNormal = (modelViewMatrix  * vec4(normal, 0.0)).xyz;\n\n    vec3 hsl = rgb2hsl( texture2D( map, vUv ).xyz );\n    vec4 pos = vec4( xyz( position.x, position.y, hsl.x ), 1.0 );\n    pos.z += 2600.0;\n\n    visibility = hsl.z * 2.1;\n\n    if(isPoints){\n        gl_PointSize = pointSize;\n    }\n\n    gl_Position = projectionMatrix * modelViewMatrix * pos;\n}"]);
 
         //For building the geomtery
         _this.VERTS_WIDE = 256;
@@ -354,7 +354,7 @@ var DepthKit = function (_EventEmitter) {
 
         //Material
         _this.material = new THREE.ShaderMaterial({
-            uniforms: {
+            uniforms: Object.assign({
                 "diffuse": {
                     type: 'c',
                     value: new THREE.Color(0x0000ff)
@@ -402,90 +402,19 @@ var DepthKit = function (_EventEmitter) {
                 "pointSize": {
                     type: "f",
                     value: 3.0
-                },
-                "ambientLightColor": { value: [] },
-
-                "directionalLights": {
-                    value: [], properties: {
-                        direction: {},
-                        color: {},
-
-                        shadow: {},
-                        shadowBias: {},
-                        shadowRadius: {},
-                        shadowMapSize: {}
-                    }
-                },
-
-                "directionalShadowMap": { value: [] },
-                "directionalShadowMatrix": { value: [] },
-
-                "spotLights": {
-                    value: [], properties: {
-                        color: {},
-                        position: {},
-                        direction: {},
-                        distance: {},
-                        coneCos: {},
-                        penumbraCos: {},
-                        decay: {},
-
-                        shadow: {},
-                        shadowBias: {},
-                        shadowRadius: {},
-                        shadowMapSize: {}
-                    }
-                },
-
-                "spotShadowMap": { value: [] },
-                "spotShadowMatrix": { value: [] },
-
-                "pointLights": {
-                    value: [], properties: {
-                        color: {},
-                        position: {},
-                        decay: {},
-                        distance: {},
-
-                        shadow: {},
-                        shadowBias: {},
-                        shadowRadius: {},
-                        shadowMapSize: {},
-                        shadowCameraNear: {},
-                        shadowCameraFar: {}
-                    }
-                },
-
-                "pointShadowMap": { value: [] },
-                "pointShadowMatrix": { value: [] },
-
-                "hemisphereLights": {
-                    value: [], properties: {
-                        direction: {},
-                        skyColor: {},
-                        groundColor: {}
-                    }
-                },
-
-                // TODO (abelnation): RectAreaLight BRDF data needs to be moved from example to main src
-                "rectAreaLights": {
-                    value: [], properties: {
-                        color: {},
-                        position: {},
-                        width: {},
-                        height: {}
-                    }
                 }
-            },
+            }, THREE.UniformsLib['lights']),
             vertexShader: rgbdVert,
             fragmentShader: rgbdFrag,
-            transparent: true,
-            lights: true
-
+            lights: true,
+            transparent: true
         });
-
+        console.log(THREE.ShaderLib);
         //Make the shader material double sided
         _this.material.side = THREE.DoubleSide;
+
+        //Make sure it updates
+        _this.material.needsUpdate = true;
 
         //Switch a few things based on selected rendering type and create the mesh
         switch (_type) {
@@ -545,7 +474,7 @@ var DepthKit = function (_EventEmitter) {
                     geo.faces.push(new THREE.Face3(_x2 + 1 + _y * this.VERTS_WIDE, _x2 + (_y + 1) * this.VERTS_WIDE, _x2 + 1 + (_y + 1) * this.VERTS_WIDE));
                 }
             }
-
+            geo.computeFaceNormals();
             return geo;
         }
 
