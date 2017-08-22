@@ -510,21 +510,13 @@ var DepthKit = function (_EventEmitter) {
     }, {
         key: 'stop',
         value: function stop() {
-            if (this.video.isPlaying) {
-                this.video.pause();
-                this.video.currentTime = 0.0;
-            } else {
-                console.warn('Can not stop because the character is already stopped');
-            }
+            this.video.currentTime = 0.0;
+            this.video.pause();
         }
     }, {
         key: 'pause',
         value: function pause() {
-            if (this.video.isPlaying) {
-                this.video.pause();
-            } else {
-                console.warn('Can not pause because the character is already paused');
-            }
+            this.video.pause();
         }
     }, {
         key: 'setLoop',

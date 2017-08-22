@@ -219,20 +219,12 @@ export default class DepthKit extends EventEmitter {
     }
 
     stop() {
-        if (this.video.isPlaying) {
-            this.video.pause();
-            this.video.currentTime = 0.0;
-        } else {
-            console.warn('Can not stop because the character is already stopped');
-        }
+        this.video.currentTime = 0.0;
+        this.video.pause();
     }
 
     pause() {
-        if (this.video.isPlaying) {
-            this.video.pause();
-        } else {
-            console.warn('Can not pause because the character is already paused');
-        }
+        this.video.pause();
     }
 
     setLoop(isLooping) {
