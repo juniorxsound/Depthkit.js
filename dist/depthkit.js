@@ -402,11 +402,85 @@ var DepthKit = function (_EventEmitter) {
                 "pointSize": {
                     type: "f",
                     value: 3.0
+                },
+                "ambientLightColor": { value: [] },
+
+                "directionalLights": {
+                    value: [], properties: {
+                        direction: {},
+                        color: {},
+
+                        shadow: {},
+                        shadowBias: {},
+                        shadowRadius: {},
+                        shadowMapSize: {}
+                    }
+                },
+
+                "directionalShadowMap": { value: [] },
+                "directionalShadowMatrix": { value: [] },
+
+                "spotLights": {
+                    value: [], properties: {
+                        color: {},
+                        position: {},
+                        direction: {},
+                        distance: {},
+                        coneCos: {},
+                        penumbraCos: {},
+                        decay: {},
+
+                        shadow: {},
+                        shadowBias: {},
+                        shadowRadius: {},
+                        shadowMapSize: {}
+                    }
+                },
+
+                "spotShadowMap": { value: [] },
+                "spotShadowMatrix": { value: [] },
+
+                "pointLights": {
+                    value: [], properties: {
+                        color: {},
+                        position: {},
+                        decay: {},
+                        distance: {},
+
+                        shadow: {},
+                        shadowBias: {},
+                        shadowRadius: {},
+                        shadowMapSize: {},
+                        shadowCameraNear: {},
+                        shadowCameraFar: {}
+                    }
+                },
+
+                "pointShadowMap": { value: [] },
+                "pointShadowMatrix": { value: [] },
+
+                "hemisphereLights": {
+                    value: [], properties: {
+                        direction: {},
+                        skyColor: {},
+                        groundColor: {}
+                    }
+                },
+
+                // TODO (abelnation): RectAreaLight BRDF data needs to be moved from example to main src
+                "rectAreaLights": {
+                    value: [], properties: {
+                        color: {},
+                        position: {},
+                        width: {},
+                        height: {}
+                    }
                 }
             },
             vertexShader: rgbdVert,
             fragmentShader: rgbdFrag,
-            transparent: true
+            transparent: true,
+            lights: true
 
         });
 
