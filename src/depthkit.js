@@ -32,7 +32,6 @@ export default class DepthKit extends EventEmitter {
         //For building the geomtery
         this.VERTS_WIDE = 256;
         this.VERTS_TALL = 256;
-        this.precision = 3;
 
         //Video element
         this.video = document.createElement('video');

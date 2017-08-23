@@ -326,7 +326,6 @@ var DepthKit = function (_EventEmitter) {
         //For building the geomtery
         _this.VERTS_WIDE = 256;
         _this.VERTS_TALL = 256;
-        _this.precision = 3;
 
         //Video element
         _this.video = document.createElement('video');

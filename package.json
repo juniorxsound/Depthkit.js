@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "http-server",
-    "watch": "watchify src/index.js -o dist/depthkit.js -v",
-    "build": "browserify src/index.js  | uglifyjs -mc warnings=false > dist/depthkit.min.js"
+    "watch": "watchify src/index.js -o build/depthkit.js -v",
+    "build": "browserify src/index.js  | uglifyjs -mc warnings=false > build/depthkit.min.js"
   },
   "keywords": [
     "WebGL",
