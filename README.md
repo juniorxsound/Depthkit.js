@@ -10,7 +10,7 @@ A plugin for visualising [DepthKit](http://www.depthkit.tv/) volumteric captures
 
 ```npm run start``` to start the server
 
-```npm run watch``` to bundle ```dist/depthkit.js``` on the fly
+```npm run watch``` to run *watchify* and bundle on every change to ```dist/depthkit.js```
 
 ```npm run build``` to bundle and minify to ```dist/depthkit.min.js```
 
