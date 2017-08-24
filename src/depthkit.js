@@ -14,16 +14,12 @@
 //Three.js - for easy debugging and testing, should be excluded from the build
 // import * as THREE from 'three'
 
-//Event emitter for providing event handlers from the class
-import EventEmitter from 'event-emitter-es6';
-
 // bundling of GLSL code
 const glsl = require('glslify');
 
-export default class DepthKit extends EventEmitter {
+export default class DepthKit {
 
     constructor(_type = 'mesh', _props, _movie, _poster) {
-        super();
 
         //Load the shaders
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
@@ -60,10 +56,6 @@ export default class DepthKit extends EventEmitter {
         //Material
         this.material = new THREE.ShaderMaterial({
             uniforms: {
-                "diffuse": {
-                    type: 'c',
-                    value: new THREE.Color(0x0000ff)
-                },
                 "map": {
                     type: "t",
                     value: this.videoTexture
@@ -142,7 +134,7 @@ export default class DepthKit extends EventEmitter {
             // Function when json is loaded
             data => {
                 this.props = data;
-                console.log(this.props);
+                // console.log(this.props);
 
                 //Update the shader based on the properties from the JSON
                 this.material.uniforms.width.value = this.props.textureWidth;
@@ -154,6 +146,21 @@ export default class DepthKit extends EventEmitter {
 
         //Apend the object to the Three Object3D that way it's accsesable from the instance
         this.mesh.depthkit = this;
+
+        //Create the collider
+        let sphereGeo = new THREE.SphereGeometry(300, 32, 32);
+        let sphereMat = new THREE.MeshBasicMaterial(
+            { 
+                color: 0xffff00,
+                wireframe: true
+            }
+        );
+        this.colider = new THREE.Mesh(sphereGeo, sphereMat);
+        this.colider.scale.set(5, 2.5, 2.5);
+        this.colider.visible = false;
+        this.mesh.add(this.colider);
+
+        this.mesh.name = 'depthkit';
 
         //Return the object3D so it could be added to the scene
         return this.mesh;

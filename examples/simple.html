@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>Simple DepthKit example using Three.js</title>
+	<title>DepthKit - Simple example using Three.js</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<style>
@@ -38,15 +38,18 @@
 	<script src="../build/depthkit.js"></script>
 
 	<div id="info">
-		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple DepthKit example using Three.js<br/>		Written by <a href="http://orfleisher.com">juniorxsound</a>
+		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple example using Three.js<br/>		Written by <a href="http://orfleisher.com">juniorxsound</a>
 	</div>
 
 	<script>
+
+		//Some general Three.js components
 		var renderer,
 			scene,
 			camera,
 			controls;
 
+		//DepthKit character
 		var character;
 
 		init();
@@ -66,26 +69,27 @@
 			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 500);
 			camera.position.set(0, 3, -4);
 
-			
-
 			// Setup controls
 			controls = new THREE.OrbitControls(camera);
 
-			//Grid helper
-			var size = 10;
-			var divisions = 10;
-
-			var gridHelper = new THREE.GridHelper(size, divisions);
+			// A grid helper as a floor reference
+			var gridHelper = new THREE.GridHelper(10, 10);
 			scene.add(gridHelper);
 
-			// DepthKit character
+			//DepthKit(mesh/wire/points rendering, path to txt, path to video)
 			character = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt", "../assets/Chae/Chae_Demo_Upres.mp4");
+			
+			//Position and rotation adjustments
 			character.scale.set(0.001, 0.001, 0.001);
 			character.position.y = 1.1;
 			character.rotateZ(Math.PI / 2);
 			character.rotateX(Math.PI);
+
+			//Depthkit methods
 			character.depthkit.setLoop(true);
 			character.depthkit.play();
+
+			//Add the character to the scene
 			scene.add(character);
 
 			render();
