@@ -8,6 +8,10 @@
     "watch": "watchify src/index.js -o build/depthkit.js -v",
     "build": "browserify src/index.js  | uglifyjs -mc warnings=false > build/depthkit.min.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juniorxsound/DepthKit.js.git"
+  },
   "keywords": [
     "WebGL",
     "three.js",
@@ -27,7 +31,8 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "three": "^0.87.1"
+    "three": "^0.87.1",
+    "webvr-polyfill": "^0.9.36"
   },
   "browserify": {
     "transform": [

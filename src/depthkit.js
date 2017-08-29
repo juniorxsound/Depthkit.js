@@ -247,6 +247,6 @@ export default class DepthKit {
 
     //Clean everything up
     dispose() {
-
+        
     }
 }

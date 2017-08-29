@@ -2,12 +2,12 @@
 <html lang="en">
 
 <head>
-    <title>DepthKit - Collision example using Three.js</title>
+    <title>DepthKit - Simple webVR example using Three.js</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<!-- Origin Trial Token, feature = WebVR (For Chrome M59+), origin = https://juniorxsound.github.io, expires = 2017-08-16 -->
-	<meta http-equiv="origin-trial" data-feature="WebVR (For Chrome M59+)" data-expires="2017-08-16" content="Ahwo2B0LoM2bLB015eLJ4CAvJa0xF9VVn0FO1/AaYfPklvBUwcfYFkXKenD57vhGo1WQt9Hg9IFauhKdRgLN8w8AAABreyJvcmlnaW4iOiJodHRwczovL2p1bmlvcnhzb3VuZC5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYlZSMS4xIiwiZXhwaXJ5IjoxNTAyOTEyNTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
-	<style>
+    <!-- Origin Trial Token, feature = WebVR (For Chrome M59+), origin = https://juniorxsound.github.io, expires = 2017-08-16 -->
+    <meta http-equiv="origin-trial" data-feature="WebVR (For Chrome M59+)" data-expires="2017-08-16" content="Ahwo2B0LoM2bLB015eLJ4CAvJa0xF9VVn0FO1/AaYfPklvBUwcfYFkXKenD57vhGo1WQt9Hg9IFauhKdRgLN8w8AAABreyJvcmlnaW4iOiJodHRwczovL2p1bmlvcnhzb3VuZC5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYlZSMS4xIiwiZXhwaXJ5IjoxNTAyOTEyNTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+    <style>
         body {
             background: #000;
             color: #fff;
@@ -34,20 +34,29 @@
 
     <!--Three.js-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
-    <!-- Orbit Controls -->
-    <script src="lib/OrbitControls.js"></script>
+    <!-- Three WebVR manager -->
+    <script src="lib/WebVR.js"></script>
+    <!-- WebVR Polyfill -->
+    <script src="lib/webvr-polyfill.js"></script>
     <!--DepthKit.js-->
     <script src="../build/depthkit.js"></script>
 
     <div id="info">
-        <a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Collision example using Three.js<br/>        Written by <a href="http://orfleisher.com">juniorxsound</a>
+        <a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple webVR example using Three.js<br/>        Written by <a href="http://orfleisher.com">juniorxsound</a>
     </div>
 
     <script>
+        //webVR Polyfill config
+        WebVRConfig = {
+            BUFFER_SCALE: 0.5, // Default: 0.5.
+            GET_VR_DISPLAYS_TIMEOUT: 5000
+        };
+
         //Some general Three.js components
         var renderer,
             scene,
             camera,
+            dolly,
             controls,
             raycaster,
             mouse = new THREE.Vector2(0, 0);
@@ -59,21 +68,37 @@
 
         function init() {
 
+            //Check availablity of the WebVR API - the polyfill polyfills .getVRDisplays() but should still not find any display if there isn't one
+			WEBVR.checkAvailability().catch( function( message ) {
+				document.body.appendChild( WEBVR.getMessageContainer( message ) );
+			});
+
             //Setup renderer
             renderer = new THREE.WebGLRenderer();
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.vr.enabled = true;
             document.body.appendChild(renderer.domElement);
 
             // Setup scene
             scene = new THREE.Scene();
 
-            // Setup camera
+            // Setup camera and dolly to move the camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 500);
-            camera.position.set(0, 3, -4);
+            
+            // Use a group or an empty Object3D class to control the camera position/rotation
+            dolly = new THREE.Group();
+            dolly.add(camera);
+            dolly.rotateY(Math.PI);
+            dolly.position.set(0, 1.5, -4);
+            scene.add(dolly);
 
-            // Setup controls
-            controls = new THREE.OrbitControls(camera);
+            // Setup webVR display/polyfill and add button
+            WEBVR.getVRDisplay(function (display) {
+                renderer.vr.setDevice(display);
+                document.body.appendChild(WEBVR.getButton(display, renderer.domElement));
+            });
+
 
             // A grid helper as a floor reference
             var gridHelper = new THREE.GridHelper(10, 10);
