@@ -119,14 +119,13 @@
             //Add the character to the scene
             scene.add(character);
 
-            window.addEventListener('mousedown', click, false);
+            // A grid helper as a floor reference
+			var gridHelper = new THREE.GridHelper(10, 10);
+			scene.add(gridHelper);
+
             window.addEventListener('resize', onWindowResize, false);
 
             update();
-        }
-
-        function click(e){
-            character.depthkit.play();
         }
 
         function update(){
