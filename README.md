@@ -38,9 +38,9 @@ Calling ```new DepthKit()``` returns a three.js Object3D which has all the regul
 
 ```npm run start``` to start the server
 
-```npm run watch``` to run *watchify* and bundle on every change to ```dist/depthkit.js```
+```npm run watch``` to run *watchify* and bundle on every change to ```build/depthkit.js```
 
-```npm run build``` to bundle and minify to ```dist/depthkit.min.js```
+```npm run build``` to bundle and minify to ```build/depthkit.min.js```
 
 ## Thanks
 Originally written by [@mrdoob](https://github.com/mrdoob) and [@obviousjim](https://github.com/obviousjim) ported and modified by [@juniorxsound](https://github.com/juniorxsound) and [@avnerus](https://github.com/Avnerus)
