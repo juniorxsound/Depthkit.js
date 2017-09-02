@@ -15,7 +15,7 @@ scene.add(character);
 Where the first argument takes a string for the rendering type (i.e "mesh", "wire" or "points"), the second and the third arguments are the path to the metadata file exported by Visualise and the top-bottom video.
 
 ### Controlling a character
-Calling ```new DepthKit``` returns a three.js Object3D which has all the regular properties and methods (e.g character.position.set()). Inside the character there is a ```depthkit``` object that has the neccesery methods to control the playback and rendering of the character
+Calling ```new DepthKit()``` returns a three.js Object3D which has all the regular properties and methods (e.g character.position.set()). Inside the character there is a ```depthkit``` object that has the neccesery methods to control the playback and rendering of the character
 
 ```character.depthkit.play()``` - Play the video
 
