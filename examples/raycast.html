@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>DepthKit - Collision example using Three.js</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <!-- Origin Trial Token, feature = WebVR (For Chrome M59+), origin = https://juniorxsound.github.io, expires = 2017-08-16 -->
+    <meta http-equiv="origin-trial" data-feature="WebVR (For Chrome M59+)" data-expires="2017-08-16" content="Ahwo2B0LoM2bLB015eLJ4CAvJa0xF9VVn0FO1/AaYfPklvBUwcfYFkXKenD57vhGo1WQt9Hg9IFauhKdRgLN8w8AAABreyJvcmlnaW4iOiJodHRwczovL2p1bmlvcnhzb3VuZC5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYlZSMS4xIiwiZXhwaXJ5IjoxNTAyOTEyNTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            font-family: georgia;
+            text-align: center;
+        }
+
+        a {
+            color: skyblue;
+            text-decoration: none
+        }
+
+        #info {
+            position: absolute;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!--Three.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+    <!-- Orbit Controls -->
+    <script src="lib/OrbitControls.js"></script>
+    <!--DepthKit.js-->
+    <script src="../build/depthkit.js"></script>
+
+    <div id="info">
+        <a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Collision example using Three.js<br/>        Written by <a href="http://orfleisher.com">juniorxsound</a>
+    </div>
+
+    <script>
+        //Some general Three.js components
+        var renderer,
+            scene,
+            camera,
+            controls,
+            raycaster,
+            mouse = new THREE.Vector2(0, 0);
+
+        //DepthKit character
+        var character;
+
+        init();
+
+        function init() {
+
+            //Setup renderer
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Setup scene
+            scene = new THREE.Scene();
+
+            // Setup camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 500);
+            camera.position.set(0, 3, -4);
+
+            // Setup controls
+            controls = new THREE.OrbitControls(camera);
+
+            // A grid helper as a floor reference
+            var gridHelper = new THREE.GridHelper(10, 10);
+            scene.add(gridHelper);
+
+            //DepthKit(mesh/wire/points rendering, path to txt, path to video)
+            character = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt", "../assets/Chae/Chae_Demo_Upres.mp4");
+
+            //Position and rotation adjustments
+            character.scale.set(0.001, 0.001, 0.001);
+            character.position.y = 1.1;
+            character.rotateZ(Math.PI / 2);
+            character.rotateX(Math.PI);
+
+            //Set the opacity low until mouse over character
+            character.depthkit.setOpacity(0.5);
+
+            //Make it loop once activated
+            character.depthkit.setLoop(true);
+
+            //Add the character to the scene
+            scene.add(character);
+
+            raycaster = new THREE.Raycaster();
+
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('resize', onWindowResize, false);
+
+            render();
+        }
+
+        function render() {
+
+            requestAnimationFrame(render);
+
+            renderer.render(scene, camera);
+
+        }
+
+        function onMouseMove(event) {
+
+            //Prevent the mouse from doing mouse stuff
+            event.preventDefault();
+
+            //Calculate the center
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Find intersections
+            raycaster.setFromCamera(mouse, camera);
+
+            //Only intersect with depthkit objects
+            var depthkitObjects = [];
+            for (var i = 0; i < scene.children.length; i++) {
+                if (scene.children[i].name === 'depthkit') {
+                    depthkitObjects.push(scene.children[i]);
+                }
+            }
+
+            var intersects = raycaster.intersectObjects(depthkitObjects);
+
+            //Only do that if we acctually have intersects
+            if (intersects.length > 0) {
+                for (var i = 0; i < intersects.length; i++) {
+                    intersects[i].object.depthkit.setOpacity(1.0);
+                    intersects[i].object.depthkit.play();
+                }
+            } else {
+                for (var i = 0; i < depthkitObjects.length; i++) {
+                    depthkitObjects[i].depthkit.setOpacity(0.5);
+                    depthkitObjects[i].depthkit.pause();
+                }
+            }
+
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+
+</body>
+
+</html>

@@ -94,6 +94,8 @@
 			//Add the character to the scene
 			scene.add(character);
 
+			window.addEventListener('resize', onWindowResize, false);
+
 			render();
 		}
 
@@ -103,6 +105,12 @@
 
 			renderer.render(scene, camera);
 
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
 		}
 	</script>
 
