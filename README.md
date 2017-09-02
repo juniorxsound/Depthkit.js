@@ -16,9 +16,6 @@ Where the first argument takes a string for the rendering type (i.e "mesh", "wir
 
 ### Controlling a character
 Calling ```new DepthKit``` returns a three.js Object3D which has all the regular properties and methods (e.g character.position.set()). Inside the character there is a ```depthkit``` object that has the neccesery methods to control the playback and rendering of the character
-```character.depthkit.setPointSize(size)``` - Only when rendering points
-
-```character.depthkit.setOpacity(opacity)``` - Change opacity
 
 ```character.depthkit.play()``` - Play the video
 
@@ -29,6 +26,10 @@ Calling ```new DepthKit``` returns a three.js Object3D which has all the regular
 ```character.depthkit.setLoop(isLooping)``` - Set loop to true or false
 
 ```character.depthkit.setVolume(volume)``` - Change the volume of the audio
+
+```character.depthkit.setPointSize(size)``` - Only when rendering points
+
+```character.depthkit.setOpacity(opacity)``` - Change opacity
 
 ## How to contribute:
 1. Fork/Clone/Download
