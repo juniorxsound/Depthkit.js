@@ -31,6 +31,15 @@ Calling ```new DepthKit()``` returns a three.js Object3D which has all the regul
 
 ```character.depthkit.setOpacity(opacity)``` - Change opacity
 
+## Examples:
+[Simple DepthKit example](https://juniorxsound.github.io/DepthKit.js/examples/simple.html)
+
+[Mouse hover example](https://juniorxsound.github.io/DepthKit.js/examples/raycast.html)
+
+[Simple webVR example](https://juniorxsound.github.io/DepthKit.js/examples/webvr_simple.html)
+
+[Raycasting webVR example](https://juniorxsound.github.io/DepthKit.js/examples/webvr_raycast.html)
+
 ## How to contribute:
 1. Fork/Clone/Download
 1. Install all dependcies using ```npm install```
