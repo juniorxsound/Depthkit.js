@@ -40,6 +40,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // bundling of GLSL code
 var glsl = require('glslify');
 
+//For building the geomtery
+var VERTS_WIDE = 256;
+var VERTS_TALL = 256;
+
 var DepthKit = function () {
     function DepthKit() {
         var _type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'mesh';
@@ -56,10 +60,6 @@ var DepthKit = function () {
         //Load the shaders
         var rgbdFrag = glsl(["#define GLSLIFY 1\nuniform sampler2D map;\nuniform float opacity;\n\nuniform float uvdy;\nuniform float uvdx;\n\nvarying float visibility;\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vPos;\n\nvoid main() {\n\n    if ( visibility < 0.75 ) discard;\n\n    vec4 color = texture2D( map, vUv + vec2(uvdx, uvdy));\n    color.w = opacity;\n\n    gl_FragColor = color;\n    \n}"]);
         var rgbdVert = glsl(["#define GLSLIFY 1\nuniform float mindepth;\nuniform float maxdepth;\n\nuniform float width;\nuniform float height;\n\nuniform bool isPoints;\nuniform float pointSize;\n\nuniform float time;\n\nvarying vec3 vNormal;\nvarying vec3 vPos;\n\n//TODO: make uniforms\nconst float fx = 1.11087;\nconst float fy = 0.832305;\n\nuniform sampler2D map;\n\n//Making z global\nfloat z;\n\nvarying float visibility;\nvarying vec2 vUv;\n\nvec3 rgb2hsl( vec3 color ) {\n    float h = 0.0;\n    float s = 0.0;\n    float l = 0.0;\n    float r = color.r;\n    float g = color.g;\n    float b = color.b;\n    float cMin = min( r, min( g, b ) );\n    float cMax = max( r, max( g, b ) );\n    l =  ( cMax + cMin ) / 2.0;\n    if ( cMax > cMin ) {\n        float cDelta = cMax - cMin;\n        // saturation\n        if ( l < 0.5 ) {\n            s = cDelta / ( cMax + cMin );\n        } else {\n            s = cDelta / ( 2.0 - ( cMax + cMin ) );\n        }\n\n        // hue\n        if ( r == cMax ) {\n            h = ( g - b ) / cDelta;\n        } else if ( g == cMax ) {\n            h = 2.0 + ( b - r ) / cDelta;\n        } else {\n            h = 4.0 + ( r - g ) / cDelta;\n        }\n\n        if ( h < 0.0) {\n            h += 6.0;\n        }\n        h = h / 6.0;\n\n    }\n    return vec3( h, s, l );\n}\n\nvec3 xyz( float x, float y, float depth ) {\n    z = depth * ( maxdepth - mindepth ) + mindepth;\n    return vec3( ( x / height  ) * z * fx, ( y / (width * 2.0)  ) * z * fy, - z );\n}\n\nvoid main() {\n\n    vUv = vec2( ( position.x + 512.0 ) / 1024.0 , ( position.y + 512.0  ) / 1024.0 );\n\n    vUv.y = vUv.y * 0.5;// + 0.5;\n\n    vPos = (modelMatrix * vec4(position, 1.0 )).xyz;\n    vNormal = normalMatrix * normal;\n\n    vec3 hsl = rgb2hsl( texture2D( map, vUv ).xyz );\n    vec4 pos = vec4( xyz( position.x, position.y, hsl.x ), 1.0 );\n    pos.z += 2600.0;\n\n    visibility = hsl.z * 2.1;\n\n    if(isPoints){\n        gl_PointSize = pointSize;\n    }\n\n    gl_Position = projectionMatrix * modelViewMatrix * pos;\n}"]);
-
-        //For building the geomtery
-        this.VERTS_WIDE = 256;
-        this.VERTS_TALL = 256;
 
         //Video element
         this.video = document.createElement('video');
@@ -83,7 +83,9 @@ var DepthKit = function () {
         this.props;
 
         //Geomtery
-        this.geo = this.buildGeomtery();
+        if (!DepthKit.geo) {
+            DepthKit.buildGeomtery();
+        }
 
         //Material
         this.material = new THREE.ShaderMaterial({
@@ -146,16 +148,16 @@ var DepthKit = function () {
         switch (_type) {
             case 'wire':
                 this.material.wireframe = true;
-                this.mesh = new THREE.Mesh(this.geo, this.material);
+                this.mesh = new THREE.Mesh(DepthKit.geo, this.material);
                 break;
 
             case 'points':
                 this.material.uniforms.isPoints.value = true;
-                this.mesh = new THREE.Points(this.geo, this.material);
+                this.mesh = new THREE.Points(DepthKit.geo, this.material);
                 break;
 
             default:
-                this.mesh = new THREE.Mesh(this.geo, this.material);
+                this.mesh = new THREE.Mesh(DepthKit.geo, this.material);
                 break;
         }
 
@@ -196,33 +198,12 @@ var DepthKit = function () {
     }
 
     _createClass(DepthKit, [{
-        key: 'buildGeomtery',
-        value: function buildGeomtery() {
+        key: 'setPointSize',
 
-            //Temporary geometry
-            var geo = new THREE.Geometry();
-
-            for (var y = 0; y < this.VERTS_TALL; y++) {
-                for (var x = 0; x < this.VERTS_WIDE; x++) {
-                    geo.vertices.push(new THREE.Vector3(-640 + x * 5, 480 - y * 5, 0));
-                }
-            }
-            for (var _y = 0; _y < this.VERTS_TALL - 1; _y++) {
-                for (var _x2 = 0; _x2 < this.VERTS_WIDE - 1; _x2++) {
-                    geo.faces.push(new THREE.Face3(_x2 + _y * this.VERTS_WIDE, _x2 + (_y + 1) * this.VERTS_WIDE, _x2 + 1 + _y * this.VERTS_WIDE));
-                    geo.faces.push(new THREE.Face3(_x2 + 1 + _y * this.VERTS_WIDE, _x2 + (_y + 1) * this.VERTS_WIDE, _x2 + 1 + (_y + 1) * this.VERTS_WIDE));
-                }
-            }
-
-            return geo;
-        }
 
         /*
         * Render related methods
         */
-
-    }, {
-        key: 'setPointSize',
         value: function setPointSize(size) {
             if (this.material.uniforms.isPoints.value) {
                 this.material.uniforms.pointSize.value = size;
@@ -281,6 +262,24 @@ var DepthKit = function () {
     }, {
         key: 'dispose',
         value: function dispose() {}
+    }], [{
+        key: 'buildGeomtery',
+        value: function buildGeomtery() {
+
+            DepthKit.geo = new THREE.Geometry();
+
+            for (var y = 0; y < VERTS_TALL; y++) {
+                for (var x = 0; x < VERTS_WIDE; x++) {
+                    DepthKit.geo.vertices.push(new THREE.Vector3(-640 + x * 5, 480 - y * 5, 0));
+                }
+            }
+            for (var _y = 0; _y < VERTS_TALL - 1; _y++) {
+                for (var _x2 = 0; _x2 < VERTS_WIDE - 1; _x2++) {
+                    DepthKit.geo.faces.push(new THREE.Face3(_x2 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + _y * VERTS_WIDE));
+                    DepthKit.geo.faces.push(new THREE.Face3(_x2 + 1 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + (_y + 1) * VERTS_WIDE));
+                }
+            }
+        }
     }]);
 
     return DepthKit;

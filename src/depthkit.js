@@ -17,6 +17,10 @@
 // bundling of GLSL code
 const glsl = require('glslify');
 
+//For building the geomtery
+const VERTS_WIDE = 256;
+const VERTS_TALL = 256;
+
 export default class DepthKit {
 
     constructor(_type = 'mesh', _props, _movie, _poster) {
@@ -25,9 +29,6 @@ export default class DepthKit {
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
 
-        //For building the geomtery
-        this.VERTS_WIDE = 256;
-        this.VERTS_TALL = 256;
 
         //Video element
         this.video = document.createElement('video');
@@ -51,7 +52,9 @@ export default class DepthKit {
         this.props;
 
         //Geomtery
-        this.geo = this.buildGeomtery();
+        if (!DepthKit.geo) {
+            DepthKit.buildGeomtery();
+        }
 
         //Material
         this.material = new THREE.ShaderMaterial({
@@ -114,16 +117,16 @@ export default class DepthKit {
         switch (_type) {
             case 'wire':
                 this.material.wireframe = true;
-                this.mesh = new THREE.Mesh(this.geo, this.material);
+                this.mesh = new THREE.Mesh(DepthKit.geo, this.material);
                 break;
 
             case 'points':
                 this.material.uniforms.isPoints.value = true;
-                this.mesh = new THREE.Points(this.geo, this.material);
+                this.mesh = new THREE.Points(DepthKit.geo, this.material);
                 break;
 
             default:
-                this.mesh = new THREE.Mesh(this.geo, this.material);
+                this.mesh = new THREE.Mesh(DepthKit.geo, this.material);
                 break;
         }
 
@@ -166,36 +169,32 @@ export default class DepthKit {
         return this.mesh;
     }
 
-    buildGeomtery() {
+     static buildGeomtery() {
 
-        //Temporary geometry
-        let geo = new THREE.Geometry();
+        DepthKit.geo = new THREE.Geometry();
 
-
-        for (let y = 0; y < this.VERTS_TALL; y++) {
-            for (let x = 0; x < this.VERTS_WIDE; x++) {
-                geo.vertices.push(
+        for (let y = 0; y < VERTS_TALL; y++) {
+            for (let x = 0; x < VERTS_WIDE; x++) {
+                DepthKit.geo.vertices.push(
                     new THREE.Vector3((-640 + x * 5), (480 - y * 5), 0));
             }
         }
-        for (let y = 0; y < this.VERTS_TALL - 1; y++) {
-            for (let x = 0; x < this.VERTS_WIDE - 1; x++) {
-                geo.faces.push(
+        for (let y = 0; y < VERTS_TALL - 1; y++) {
+            for (let x = 0; x < VERTS_WIDE - 1; x++) {
+                DepthKit.geo.faces.push(
                     new THREE.Face3(
-                        x + y * this.VERTS_WIDE,
-                        x + (y + 1) * this.VERTS_WIDE,
-                        (x + 1) + y * (this.VERTS_WIDE)
+                        x + y * VERTS_WIDE,
+                        x + (y + 1) * VERTS_WIDE,
+                        (x + 1) + y * (VERTS_WIDE)
                     ));
-                geo.faces.push(
+                DepthKit.geo.faces.push(
                     new THREE.Face3(
-                        x + 1 + y * this.VERTS_WIDE,
-                        x + (y + 1) * this.VERTS_WIDE,
-                        (x + 1) + (y + 1) * (this.VERTS_WIDE)
+                        x + 1 + y * VERTS_WIDE,
+                        x + (y + 1) * VERTS_WIDE,
+                        (x + 1) + (y + 1) * (VERTS_WIDE)
                     ));
             }
         }
-
-        return geo;
     }
 
     /*
