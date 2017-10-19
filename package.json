@@ -1,6 +1,6 @@
 {
   "name": "depthkit",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A plugin for rendering DepthKit volumetric videos using Three.js",
   "main": "build/depthkit.js",
   "scripts": {
