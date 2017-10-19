@@ -8,6 +8,8 @@ The plugin was developed for [Tzina: A Symphony of Longing](https://tzina.space)
 
 Include ```depthkit.js``` or ```depthkit.min.js``` after loading ```three.js``` in your project.
 
+Alternatively, if you use Node.js you can install the package with npm using ```npm install depthkit``` [npm package](https://www.npmjs.com/package/depthkit)
+
 ### Creating a character
 ```
 var character = new DepthKit("mesh", "meta.txt", "take.mp4");
