@@ -11,7 +11,7 @@ Include ```depthkit.js``` or ```depthkit.min.js``` after loading ```three.js``` 
 Alternatively, if you use Node.js you can install the package with npm using ```npm install depthkit``` [npm package](https://www.npmjs.com/package/depthkit)
 
 ### Creating a character
-```
+```JavaScript
 var character = new DepthKit("mesh", "meta.txt", "take.mp4");
 
 scene.add(character);
