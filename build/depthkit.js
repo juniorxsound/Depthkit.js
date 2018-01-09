@@ -161,7 +161,7 @@ var DepthKit = function () {
                 break;
         }
 
-        //Make sure to read the config file as json (i.e JSON.parse)        
+        //Make sure to read the config file as json (i.e JSON.parse)
         this.jsonLoader = new THREE.FileLoader(this.manager);
         this.jsonLoader.setResponseType('json');
         this.jsonLoader.load(_props,

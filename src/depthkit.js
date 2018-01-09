@@ -130,7 +130,7 @@ export default class DepthKit {
                 break;
         }
 
-        //Make sure to read the config file as json (i.e JSON.parse)        
+        //Make sure to read the config file as json (i.e JSON.parse)
         this.jsonLoader = new THREE.FileLoader(this.manager);
         this.jsonLoader.setResponseType('json');
         this.jsonLoader.load(_props,
@@ -153,7 +153,7 @@ export default class DepthKit {
         //Create the collider
         let sphereGeo = new THREE.SphereGeometry(300, 32, 32);
         let sphereMat = new THREE.MeshBasicMaterial(
-            { 
+            {
                 color: 0xffff00,
                 wireframe: true
             }
@@ -246,6 +246,6 @@ export default class DepthKit {
 
     //Clean everything up
     dispose() {
-        
+
     }
 }

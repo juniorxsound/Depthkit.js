@@ -33,7 +33,7 @@
 <body>
 
     <!--Three.js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
     <!-- Three WebVR manager -->
     <script src="lib/WebVR.js"></script>
     <!-- WebVR Polyfill -->
@@ -85,7 +85,7 @@
 
             // Setup camera and dolly to move the camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 500);
-            
+
             // Use a group or an empty Object3D class to control the camera position/rotation
             dolly = new THREE.Group();
             dolly.add(camera);
