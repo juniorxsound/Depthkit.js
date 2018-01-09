@@ -49,7 +49,7 @@ Calling ```new DepthKit()``` returns a three.js Object3D which has all the regul
 1. Install all dependcies using ```npm install```
 1. Use the following node commands:
 
-```npm run start``` uses [concurrently]() to start an ```http-server``` and to run *watchify* and bundle on every change to ```build/depthkit.js```
+```npm run start``` uses ```concurrently``` to start an ```http-server``` and to run ```watchify``` and bundle on every change to ```build/depthkit.js```
 
 ```npm run build``` to bundle and minify to ```build/depthkit.min.js```
 
