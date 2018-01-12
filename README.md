@@ -35,6 +35,8 @@ Calling ```new DepthKit()``` returns a three.js Object3D which has all the regul
 
 ```character.depthkit.setOpacity(opacity)``` - Change opacity
 
+```character.depthkit.setLineWidth(width)``` - Change line width when rendering wireframe
+
 ## Examples:
 [Simple DepthKit example](https://juniorxsound.github.io/DepthKit.js/examples/simple.html)
 
