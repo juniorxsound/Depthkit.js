@@ -138,7 +138,6 @@ var DepthKit = function () {
             vertexShader: rgbdVert,
             fragmentShader: rgbdFrag,
             transparent: true
-
         });
 
         //Make the shader material double sided
@@ -215,6 +214,15 @@ var DepthKit = function () {
         key: 'setOpacity',
         value: function setOpacity(opacity) {
             this.material.uniforms.opacity.value = opacity;
+        }
+    }, {
+        key: 'setLineWidth',
+        value: function setLineWidth(width) {
+            if (this.material.wireframe) {
+                this.material.wireframeLinewidth = width;
+            } else {
+                console.warn('Can not set the line width because the current character is not set to render wireframe');
+            }
         }
 
         /*
