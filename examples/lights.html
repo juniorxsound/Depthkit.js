@@ -38,14 +38,16 @@
 	<script src="../dist/depthkit.js"></script>
 
 	<div id="info">
-		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple DepthKit example using Three.js<br/>		Written by <a href="http://orfleisher.com">juniorxsound</a>
+		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Lighting DepthKit example using Three.js<br/>		Written by <a href="http://orfleisher.com">juniorxsound</a>
 	</div>
 
 	<script>
 		var renderer,
 			scene,
 			camera,
-			controls;
+			controls,
+			light1,
+			counter;
 
 		var character;
 
@@ -66,13 +68,15 @@
 			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 500);
 			camera.position.set(0, 3, -4);
 
-            var light1 = new THREE.PointLight( 0xffffff, 30.0 );
-            light1.add( new THREE.Mesh( new THREE.SphereGeometry( 0.1, 16, 8 ), new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
-            light1.position.set(0, 2, -1);
-            light1.castShadow = true;
-            window.light = light1;
-            scene.add( light1 );
-            console.log(light1);
+      light1 = new THREE.PointLight( 0xffffff, 100.0 );
+      light1.add( new THREE.Mesh( new THREE.SphereGeometry( 0.1, 16, 8 ), new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
+      light1.position.set(0, 2, -0.7);
+      light1.castShadow = true;
+      window.light = light1;
+      scene.add( light1 );
+      console.log(light1);
+
+			counter = 0;
 
 
 			// Setup controls
@@ -91,8 +95,8 @@
 			character.position.y = 1.1;
 			character.rotateZ(Math.PI / 2);
 			character.rotateX(Math.PI);
-            character.depthkit.setLoop(true);
-            character.depthkit.play();
+      character.depthkit.setLoop(true);
+      character.depthkit.play();
 			window.character = character;
 			scene.add(character);
 
@@ -100,8 +104,12 @@
 		}
 
 		function render() {
+			counter += 0.01;
 
 			requestAnimationFrame(render);
+
+			light1.position.x = Math.sin(counter);
+			light1.position.z = Math.cos(counter);
 
 			renderer.render(scene, camera);
 
