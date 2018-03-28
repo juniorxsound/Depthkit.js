@@ -75,6 +75,24 @@ export default class DepthKit {
                     type: "f",
                     value: 0.0
                 },
+                "meshDensity": {
+                    value: new THREE.Vector2(VERTS_WIDE, VERTS_TALL)
+                },
+                "focalLength": {
+                    value: new THREE.Vector2(1,1)
+                },
+                "principalPoint": {
+                    value: new THREE.Vector2(1,1)
+                },
+                "imageDimensions": {
+                    value: new THREE.Vector2(512,828)
+                },
+                "extrinsics": {
+                    value: new THREE.Matrix4()
+                },
+                "crop": {
+                    value: new THREE.Vector4(0,0,1,1)
+                },
                 "uvdy": {
                     type: "f",
                     value: 0.5
@@ -143,6 +161,19 @@ export default class DepthKit {
                 this.material.uniforms.height.value = this.props.textureHeight;
                 this.material.uniforms.mindepth.value = this.props.nearClip;
                 this.material.uniforms.maxdepth.value = this.props.farClip;
+                this.material.uniforms.focalLength.value = this.props.depthFocalLength;
+                this.material.uniforms.principalPoint.value = this.props.depthPrincipalPoint;
+                this.material.uniforms.imageDimensions.value = this.props.depthImageSize;
+                this.material.uniforms.crop.value = this.props.crop;
+
+                let ex = this.props.extrinsics;
+                this.material.uniforms.extrinsics.value.set(
+                    ex["e00"], ex["e10"], ex["e20"], ex["e30"],
+                    ex["e01"], ex["e11"], ex["e21"], ex["e31"],
+                    ex["e02"], ex["e12"], ex["e22"], ex["e32"],
+                    ex["e03"], ex["e13"], ex["e23"], ex["e33"],
+                );
+                // debugger;
             }
         );
 
@@ -174,8 +205,7 @@ export default class DepthKit {
 
         for (let y = 0; y < VERTS_TALL; y++) {
             for (let x = 0; x < VERTS_WIDE; x++) {
-                DepthKit.geo.vertices.push(
-                    new THREE.Vector3((-640 + x * 5), (480 - y * 5), 0));
+                DepthKit.geo.vertices.push(new THREE.Vector3(x, y, 0));
             }
         }
         for (let y = 0; y < VERTS_TALL - 1; y++) {
