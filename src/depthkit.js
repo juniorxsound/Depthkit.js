@@ -93,14 +93,6 @@ export default class DepthKit {
                 "crop": {
                     value: new THREE.Vector4(0,0,1,1)
                 },
-                "uvdy": {
-                    type: "f",
-                    value: 0.5
-                },
-                "uvdx": {
-                    type: "f",
-                    value: 0.0
-                },
                 "width": {
                     type: "f",
                     value: 0
@@ -173,26 +165,26 @@ export default class DepthKit {
                     ex["e02"], ex["e12"], ex["e22"], ex["e32"],
                     ex["e03"], ex["e13"], ex["e23"], ex["e33"],
                 );
-                // debugger;
+
+                //Create the collider
+                let boxGeo = new THREE.BoxGeometry(this.props.boundsSize.x, this.props.boundsSize.y, this.props.boundsSize.z);
+                let boxMat = new THREE.MeshBasicMaterial(
+                    {
+                        color: 0xffff00,
+                        wireframe: true
+                    }
+                );
+                this.collider = new THREE.Mesh(boxGeo, boxMat);
+                this.collider.position.x = this.props.boundsCenter.x;
+                this.collider.position.y = this.props.boundsCenter.y;
+                this.collider.position.z = this.props.boundsCenter.z;
+                this.collider.visible = false;
+                this.mesh.add(this.collider);
             }
         );
 
         //Apend the object to the Three Object3D that way it's accsesable from the instance
         this.mesh.depthkit = this;
-
-        //Create the collider
-        let sphereGeo = new THREE.SphereGeometry(300, 32, 32);
-        let sphereMat = new THREE.MeshBasicMaterial(
-            {
-                color: 0xffff00,
-                wireframe: true
-            }
-        );
-        this.colider = new THREE.Mesh(sphereGeo, sphereMat);
-        this.colider.scale.set(5, 2.5, 2.5);
-        this.colider.visible = false;
-        this.mesh.add(this.colider);
-
         this.mesh.name = 'depthkit';
 
         //Return the object3D so it could be added to the scene
