@@ -52,6 +52,7 @@ void main() {
     vec2 textureStep = 1.0 / meshDensity;
     vec2 basetex = floor(position.xy * textureStep * texSize.zw) * texSize.xy;
     vec2 imageCoordinates = crop.xy + (basetex * crop.zw);
+    basetex.y = 1.0 - basetex.y;
 
     vec2 depthTexCoord = basetex * vec2(1.0, 0.5) + centerpix;
     vec2 colorTexCoord = basetex * vec2(1.0, 0.5) + vec2(0.0, 0.5) + centerpix;
