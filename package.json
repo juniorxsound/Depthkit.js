@@ -1,6 +1,6 @@
 {
   "name": "depthkit",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A plugin for rendering DepthKit volumetric videos using Three.js",
   "main": "build/depthkit.js",
   "scripts": {
@@ -26,10 +26,10 @@
     "babelify": "^7.3.0",
     "browserify": "^14.4.0",
     "concurrently": "^3.5.1",
-    "glslify": "^6.1.0",
+    "glslify": "^6.1.1",
     "http-server": "^0.10.0",
-    "uglify-js": "^3.0.28",
-    "watchify": "^3.9.0"
+    "uglify-js": "^3.3.23",
+    "watchify": "^3.11.0"
   },
   "dependencies": {
     "three": "^0.87.1",
