@@ -75,13 +75,23 @@ export default class DepthKit {
                     type: "f",
                     value: 0.0
                 },
-                "uvdy": {
-                    type: "f",
-                    value: 0.5
+                "meshDensity": {
+                    value: new THREE.Vector2(VERTS_WIDE, VERTS_TALL)
                 },
-                "uvdx": {
-                    type: "f",
-                    value: 0.0
+                "focalLength": {
+                    value: new THREE.Vector2(1,1)
+                },
+                "principalPoint": {
+                    value: new THREE.Vector2(1,1)
+                },
+                "imageDimensions": {
+                    value: new THREE.Vector2(512,828)
+                },
+                "extrinsics": {
+                    value: new THREE.Matrix4()
+                },
+                "crop": {
+                    value: new THREE.Vector4(0,0,1,1)
                 },
                 "width": {
                     type: "f",
@@ -143,25 +153,38 @@ export default class DepthKit {
                 this.material.uniforms.height.value = this.props.textureHeight;
                 this.material.uniforms.mindepth.value = this.props.nearClip;
                 this.material.uniforms.maxdepth.value = this.props.farClip;
+                this.material.uniforms.focalLength.value = this.props.depthFocalLength;
+                this.material.uniforms.principalPoint.value = this.props.depthPrincipalPoint;
+                this.material.uniforms.imageDimensions.value = this.props.depthImageSize;
+                this.material.uniforms.crop.value = this.props.crop;
+
+                let ex = this.props.extrinsics;
+                this.material.uniforms.extrinsics.value.set(
+                    ex["e00"], ex["e10"], ex["e20"], ex["e30"],
+                    ex["e01"], ex["e11"], ex["e21"], ex["e31"],
+                    ex["e02"], ex["e12"], ex["e22"], ex["e32"],
+                    ex["e03"], ex["e13"], ex["e23"], ex["e33"],
+                );
+
+                //Create the collider
+                let boxGeo = new THREE.BoxGeometry(this.props.boundsSize.x, this.props.boundsSize.y, this.props.boundsSize.z);
+                let boxMat = new THREE.MeshBasicMaterial(
+                    {
+                        color: 0xffff00,
+                        wireframe: true
+                    }
+                );
+                this.collider = new THREE.Mesh(boxGeo, boxMat);
+                this.collider.position.x = this.props.boundsCenter.x;
+                this.collider.position.y = this.props.boundsCenter.y;
+                this.collider.position.z = this.props.boundsCenter.z;
+                this.collider.visible = false;
+                this.mesh.add(this.collider);
             }
         );
 
         //Apend the object to the Three Object3D that way it's accsesable from the instance
         this.mesh.depthkit = this;
-
-        //Create the collider
-        let sphereGeo = new THREE.SphereGeometry(300, 32, 32);
-        let sphereMat = new THREE.MeshBasicMaterial(
-            {
-                color: 0xffff00,
-                wireframe: true
-            }
-        );
-        this.colider = new THREE.Mesh(sphereGeo, sphereMat);
-        this.colider.scale.set(5, 2.5, 2.5);
-        this.colider.visible = false;
-        this.mesh.add(this.colider);
-
         this.mesh.name = 'depthkit';
 
         //Return the object3D so it could be added to the scene
@@ -174,8 +197,7 @@ export default class DepthKit {
 
         for (let y = 0; y < VERTS_TALL; y++) {
             for (let x = 0; x < VERTS_WIDE; x++) {
-                DepthKit.geo.vertices.push(
-                    new THREE.Vector3((-640 + x * 5), (480 - y * 5), 0));
+                DepthKit.geo.vertices.push(new THREE.Vector3(x, y, 0));
             }
         }
         for (let y = 0; y < VERTS_TALL - 1; y++) {

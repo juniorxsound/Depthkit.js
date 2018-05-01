@@ -68,8 +68,8 @@
 			scene = new THREE.Scene();
 
 			// Setup camera
-			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 500);
-			camera.position.set(0, 3, -4);
+			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .01, 100);
+			camera.position.set(0, 2, 3);
 
 			// Setup controls
 			controls = new THREE.OrbitControls(camera);
@@ -84,8 +84,10 @@
 			//Position and rotation adjustments
 			character.scale.set(0.001, 0.001, 0.001);
 			character.position.y = 1.1;
-			character.rotateZ(Math.PI / 2);
-			character.rotateX(Math.PI);
+			character.position.z = 1.85;
+			character.position.x = -0.75;
+			// character.rotateZ(Math.PI / 2);
+			// character.rotateX(Math.PI);
 
 			//Depthkit methods
 			character.depthkit.setLoop(true);
