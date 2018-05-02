@@ -83,15 +83,13 @@
 
 			//Position and rotation adjustments
 			character.scale.set(0.001, 0.001, 0.001);
-			character.position.y = 1.1;
-			character.position.z = 1.85;
-			character.position.x = -0.75;
-			// character.rotateZ(Math.PI / 2);
-			// character.rotateX(Math.PI);
+			character.position.set(-0.75, 1.1, 1.85);
 
 			//Depthkit methods
 			character.depthkit.setLoop(true);
 			character.depthkit.play();
+
+			character.depthkit.toggleCollider();
 
 			//Add the character to the scene
 			scene.add(character);

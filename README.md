@@ -37,6 +37,9 @@ Calling ```new DepthKit()``` returns a three.js Object3D which has all the regul
 
 ```character.depthkit.setLineWidth(width)``` - Change line width when rendering wireframe
 
+```character.depthkit.dispose()```
+- Dispose and clean the character instance
+
 ## Examples:
 [Simple DepthKit example](https://juniorxsound.github.io/DepthKit.js/examples/simple.html)
 

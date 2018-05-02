@@ -175,13 +175,13 @@ export default class DepthKit {
                     }
                 );
                 this.collider = new THREE.Mesh(boxGeo, boxMat);
-                this.collider.position.x = this.props.boundsCenter.x;
-                this.collider.position.y = this.props.boundsCenter.y;
-                this.collider.position.z = this.props.boundsCenter.z;
                 this.collider.visible = false;
                 this.mesh.add(this.collider);
             }
         );
+
+        //Make sure we don't hide the character - this helps the objects in webVR
+        this.mesh.frustumCulled = false;
 
         //Apend the object to the Three Object3D that way it's accsesable from the instance
         this.mesh.depthkit = this;
@@ -273,8 +273,23 @@ export default class DepthKit {
         this.material.uniforms.time.value = time;
     }
 
-    //Clean everything up
-    dispose() {
+    toggleCollider(){
+      // this.mesh.collider.visible = !this.mesh.collider.visible;
+    }
 
+    dispose() {
+      //Remove the mesh from the scene
+      try {
+        this.mesh.parent.remove(this.mesh);
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        this.mesh.traverse(child=>{
+          if(child.geometry !== undefined){
+            child.geometry.dispose();
+            child.material.dispose();
+          }
+        });
+      }
     }
 }

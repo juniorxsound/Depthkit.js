@@ -199,12 +199,12 @@ var DepthKit = function () {
                 wireframe: true
             });
             _this.collider = new THREE.Mesh(boxGeo, boxMat);
-            _this.collider.position.x = _this.props.boundsCenter.x;
-            _this.collider.position.y = _this.props.boundsCenter.y;
-            _this.collider.position.z = _this.props.boundsCenter.z;
             _this.collider.visible = false;
             _this.mesh.add(_this.collider);
         });
+
+        //Make sure we don't hide the character - this helps the objects in webVR
+        this.mesh.frustumCulled = false;
 
         //Apend the object to the Three Object3D that way it's accsesable from the instance
         this.mesh.depthkit = this;
@@ -282,12 +282,28 @@ var DepthKit = function () {
         value: function update(time) {
             this.material.uniforms.time.value = time;
         }
-
-        //Clean everything up
-
+    }, {
+        key: 'toggleCollider',
+        value: function toggleCollider() {
+            // this.mesh.collider.visible = !this.mesh.collider.visible;
+        }
     }, {
         key: 'dispose',
-        value: function dispose() {}
+        value: function dispose() {
+            //Remove the mesh from the scene
+            try {
+                this.mesh.parent.remove(this.mesh);
+            } catch (e) {
+                console.warn(e);
+            } finally {
+                this.mesh.traverse(function (child) {
+                    if (child.geometry !== undefined) {
+                        child.geometry.dispose();
+                        child.material.dispose();
+                    }
+                });
+            }
+        }
     }], [{
         key: 'buildGeomtery',
         value: function buildGeomtery() {
@@ -316,6 +332,14 @@ exports.default = DepthKit;
 },{"glslify":1}],3:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DepthKit = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; //DepthKit.js class
+
+
 var _depthkit = require('./depthkit');
 
 var _depthkit2 = _interopRequireDefault(_depthkit);
@@ -323,6 +347,12 @@ var _depthkit2 = _interopRequireDefault(_depthkit);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //Make it global
-window.DepthKit = _depthkit2.default; //DepthKit.js class
+if (typeof window !== 'undefined' && _typeof(window.THREE) === 'object') {
+  window.DepthKit = _depthkit2.default;
+} else {
+  console.warn('[DepthKit.js] It seems like THREE is not included in your code, try including it before DepthKit.js');
+}
+
+exports.DepthKit = _depthkit2.default;
 
 },{"./depthkit":2}]},{},[3]);
