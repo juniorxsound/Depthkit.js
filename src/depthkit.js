@@ -174,9 +174,16 @@ export default class DepthKit {
                         wireframe: true
                     }
                 );
+
                 this.collider = new THREE.Mesh(boxGeo, boxMat);
+
+
                 this.collider.visible = false;
                 this.mesh.add(this.collider);
+
+                //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
+                THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
+                this.collider.position.set(0,1,0);
             }
         );
 
@@ -273,8 +280,8 @@ export default class DepthKit {
         this.material.uniforms.time.value = time;
     }
 
-    toggleCollider(){
-      // this.mesh.collider.visible = !this.mesh.collider.visible;
+    toggleColliderVisiblity(){
+      this.mesh.collider.visible = !this.mesh.collider.visible;
     }
 
     dispose() {

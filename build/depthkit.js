@@ -198,9 +198,15 @@ var DepthKit = function () {
                 color: 0xffff00,
                 wireframe: true
             });
+
             _this.collider = new THREE.Mesh(boxGeo, boxMat);
+
             _this.collider.visible = false;
             _this.mesh.add(_this.collider);
+
+            //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
+            THREE.SceneUtils.detach(_this.collider, _this.mesh, _this.mesh.parent);
+            _this.collider.position.set(0, 1, 0);
         });
 
         //Make sure we don't hide the character - this helps the objects in webVR
@@ -283,9 +289,9 @@ var DepthKit = function () {
             this.material.uniforms.time.value = time;
         }
     }, {
-        key: 'toggleCollider',
-        value: function toggleCollider() {
-            // this.mesh.collider.visible = !this.mesh.collider.visible;
+        key: 'toggleColliderVisiblity',
+        value: function toggleColliderVisiblity() {
+            this.mesh.collider.visible = !this.mesh.collider.visible;
         }
     }, {
         key: 'dispose',
