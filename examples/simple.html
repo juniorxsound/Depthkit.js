@@ -27,6 +27,11 @@
 			position: absolute;
 			width: 100%;
 		}
+		#depthkit-video{
+			position:absolute;
+			top: 0; left: 0;
+			width: 20%;
+		}
 	</style>
 </head>
 
@@ -45,11 +50,12 @@
 	</div>
 
 	<script>
+	
 		//Some general Three.js components
 		var renderer,
-			scene,
-			camera,
-			controls;
+		scene,
+		camera,
+		controls;
 
 		//DepthKit character
 		var character;
@@ -60,56 +66,60 @@
 
 			//Setup renderer
 			renderer = new THREE.WebGLRenderer();
-			renderer.setPixelRatio(window.devicePixelRatio);
-			renderer.setSize(window.innerWidth, window.innerHeight);
-			document.body.appendChild(renderer.domElement);
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
 
 			// Setup scene
 			scene = new THREE.Scene();
 
 			// Setup camera
-			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .01, 100);
-			camera.position.set(0, 2, 3);
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .01, 100 );
+			camera.position.set( 0, 2, 3 );
 
 			// Setup controls
-			controls = new THREE.OrbitControls(camera);
+			controls = new THREE.OrbitControls( camera );
 
 			// A grid helper as a floor reference
-			var gridHelper = new THREE.GridHelper(10, 10);
+			var gridHelper = new THREE.GridHelper( 10, 10 );
 			scene.add(gridHelper);
 
 			//DepthKit(mesh/wire/points rendering, path to txt, path to video)
-			character = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt", "../assets/Chae/Chae_Demo_Upres.mp4");
+			character = new DepthKit( 'mesh', '../assets/Chae/Chae_Demo_Upres.txt', '../assets/Chae/Chae_Demo_Upres.mp4' );
 
 			//Position and rotation adjustments
-			character.scale.set(0.001, 0.001, 0.001);
-			character.position.set(-0.75, 1.1, 1.85);
+			character.scale.set( 0.001, 0.001, 0.001 );
+			character.position.set( -0.75, 1.1, 1.85 );
 
 			//Depthkit methods
-			character.depthkit.setLoop(true);
+			character.depthkit.setLoop( true );
 			character.depthkit.play();
 
 			//Add the character to the scene
 			scene.add(character);
 
-			window.addEventListener('resize', onWindowResize, false);
+			window.addEventListener( 'resize', onWindowResize, false );
 
 			render();
+
 		}
 
 		function render() {
 
-			requestAnimationFrame(render);
+			requestAnimationFrame( render );
 
-			renderer.render(scene, camera);
+			renderer.render( scene, camera );
 
 		}
 
 		function onWindowResize() {
+
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
-			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
 		}
+
 	</script>
 
 </body>
