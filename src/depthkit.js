@@ -257,6 +257,7 @@ export default class DepthKit {
     */
     play() {
         if (!this.video.isPlaying) {
+            this.video.muted = true;
             this.video.play();
         } else {
             console.warn('Can not play because the character is already playing');
