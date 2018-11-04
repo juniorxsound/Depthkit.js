@@ -57,6 +57,7 @@
 		camera,
 		controls;
 
+		var depthkit;
 		//DepthKit character
 		var character;
 
@@ -83,20 +84,25 @@
 			// A grid helper as a floor reference
 			var gridHelper = new THREE.GridHelper( 10, 10 );
 			scene.add(gridHelper);
+			
+			depthkit = new DepthKit();
+			//depthkit.setMeshDensity(4); //TODO
+			depthkit.load('../assets/Chae/Chae_Demo_Upres.txt', '../assets/Chae/Chae_Demo_Upres.mp4',
+				character =>{
 
-			//DepthKit(mesh/wire/points rendering, path to txt, path to video)
-			character = new DepthKit( 'mesh', '../assets/Chae/Chae_Demo_Upres.txt', '../assets/Chae/Chae_Demo_Upres.mp4' );
+					//Position and rotation adjustments
+					character.scale.set( 0.001, 0.001, 0.001 );
+					character.position.set( -0.75, 1.1, 1.85 );
 
-			//Position and rotation adjustments
-			character.scale.set( 0.001, 0.001, 0.001 );
-			character.position.set( -0.75, 1.1, 1.85 );
+					//Depthkit methods
+					character.depthkit.setLoop( true );
+					character.depthkit.play();
 
-			//Depthkit methods
-			character.depthkit.setLoop( true );
-			character.depthkit.play();
+					//Add the character to the scene
+					scene.add(character);
+					console.log("Adding character");
 
-			//Add the character to the scene
-			scene.add(character);
+				});
 
 			window.addEventListener( 'resize', onWindowResize, false );
 

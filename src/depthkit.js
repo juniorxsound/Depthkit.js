@@ -23,12 +23,122 @@ const VERTS_TALL = 256;
 
 export default class DepthKit {
 
-    constructor(_type = 'mesh', _props, _movie, _poster) {
+    buildGeometry() {
+
+        var meshScalar = 4.0; //TODO make dynamic in constructor
+        var vertexStep = new THREE.Vector2( meshScalar / this.props.textureWidth, meshScalar / this.props.textureHeight)
+        this.geometry = new THREE.Geometry();
+
+        for (let y = 0; y < VERTS_TALL; y++) {
+            for (let x = 0; x < VERTS_WIDE; x++) {
+                this.geometry.vertices.push(new THREE.Vector3(x * vertexStep.x, y * vertexStep.y, 0));
+            }
+        }
+
+        for (let y = 0; y < VERTS_TALL - 1; y++) {
+            for (let x = 0; x < VERTS_WIDE - 1; x++) {
+                this.geometry.faces.push(
+                    new THREE.Face3(
+                        x + y * VERTS_WIDE,
+                        x + (y + 1) * VERTS_WIDE,
+                        (x + 1) + y * (VERTS_WIDE)
+                    ));
+
+                this.geometry.faces.push(
+                    new THREE.Face3(
+                        x + 1 + y * VERTS_WIDE,
+                        x + (y + 1) * VERTS_WIDE,
+                        (x + 1) + (y + 1) * (VERTS_WIDE)
+                    ));
+            }
+        }
+
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+    }
+
+    buildMaterial() {
 
         //Load the shaders
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
 
+        var extrinsics = new THREE.Matrix4(); 
+        let ex = this.props.extrinsics;
+        extrinsics.set(
+            ex["e00"], ex["e10"], ex["e20"], ex["e30"],
+            ex["e01"], ex["e11"], ex["e21"], ex["e31"],
+            ex["e02"], ex["e12"], ex["e22"], ex["e32"],
+            ex["e03"], ex["e13"], ex["e23"], ex["e33"]
+        );
+
+        var extrinsicsInv =  new THREE.Matrix4(); 
+        extrinsicsInv.getInverse(extrinsics);
+
+        //Material
+        this.material = new THREE.ShaderMaterial({
+            uniforms: {
+                "map": {
+                    type: "t",
+                    value: this.videoTexture
+                },
+                "time": {
+                    type: "f",
+                    value: 0.0
+                },
+                "nearClip": {
+                    type: "f",
+                    value: this.props.nearClip
+                },
+                "farClip": {
+                    type: "f",
+                    value: this.props.farClip
+                },
+                "meshScalar": {
+                    type: "f",
+                    value: 4.0 //TODO Make dynamic
+                },
+                "focalLength": {
+                    value: this.props.depthFocalLength
+                },
+                "principalPoint": {
+                    value: this.props.depthPrincipalPoint
+                },
+                "imageDimensions": {
+                    value: this.props.depthImageSize
+                },
+                "extrinsics": {
+                    value: extrinsics
+                },
+                "extrinsicsInv": {
+                    value: extrinsicsInv
+                },
+                "crop": {
+                    value: this.props.crop
+                },
+                "width": {
+                    type: "f",
+                    value: this.props.textureWidth
+                },
+                "height": {
+                    type: "f",
+                    value: this.props.textureHeight
+                },
+                "opacity": {
+                    type: "f",
+                    value : 1.0
+                }
+            },
+
+            vertexShader: rgbdVert,
+            fragmentShader: rgbdFrag,
+            transparent: true
+        });
+
+        //Make the shader material double sided
+        this.material.side = THREE.DoubleSide;
+    }
+
+    load(_props, _movie, _callback) {
 
         //Video element
         this.video = document.createElement('video');
@@ -53,95 +163,7 @@ export default class DepthKit {
         this.manager = new THREE.LoadingManager();
 
         //JSON props once loaded
-        this.props;
-
-        //Geomtery
-        if (!DepthKit.geo) {
-            DepthKit.buildGeomtery();
-        }
-
-        //Material
-        this.material = new THREE.ShaderMaterial({
-            uniforms: {
-                "map": {
-                    type: "t",
-                    value: this.videoTexture
-                },
-                "time": {
-                    type: "f",
-                    value: 0.0
-                },
-                "mindepth": {
-                    type: "f",
-                    value: 0.0
-                },
-                "maxdepth": {
-                    type: "f",
-                    value: 0.0
-                },
-                "meshDensity": {
-                    value: new THREE.Vector2(VERTS_WIDE, VERTS_TALL)
-                },
-                "focalLength": {
-                    value: new THREE.Vector2(1,1)
-                },
-                "principalPoint": {
-                    value: new THREE.Vector2(1,1)
-                },
-                "imageDimensions": {
-                    value: new THREE.Vector2(512,828)
-                },
-                "extrinsics": {
-                    value: new THREE.Matrix4()
-                },
-                "crop": {
-                    value: new THREE.Vector4(0,0,1,1)
-                },
-                "width": {
-                    type: "f",
-                    value: 0
-                },
-                "height": {
-                    type: "f",
-                    value: 0
-                },
-                "opacity": {
-                    type: "f",
-                    value: 1.0
-                },
-                "isPoints": {
-                    type: "b",
-                    value: false
-                },
-                "pointSize": {
-                    type: "f",
-                    value: 3.0
-                }
-            },
-            vertexShader: rgbdVert,
-            fragmentShader: rgbdFrag,
-            transparent: true
-        });
-
-        //Make the shader material double sided
-        this.material.side = THREE.DoubleSide;
-
-        //Switch a few things based on selected rendering type and create the mesh
-        switch (_type) {
-            case 'wire':
-                this.material.wireframe = true;
-                this.mesh = new THREE.Mesh(DepthKit.geo, this.material);
-                break;
-
-            case 'points':
-                this.material.uniforms.isPoints.value = true;
-                this.mesh = new THREE.Points(DepthKit.geo, this.material);
-                break;
-
-            default:
-                this.mesh = new THREE.Mesh(DepthKit.geo, this.material);
-                break;
-        }
+        //this.props;
 
         //Make sure to read the config file as json (i.e JSON.parse)
         this.jsonLoader = new THREE.FileLoader(this.manager);
@@ -150,26 +172,11 @@ export default class DepthKit {
             // Function when json is loaded
             data => {
                 this.props = data;
-                // console.log(this.props);
 
-                //Update the shader based on the properties from the JSON
-                this.material.uniforms.width.value = this.props.textureWidth;
-                this.material.uniforms.height.value = this.props.textureHeight;
-                this.material.uniforms.mindepth.value = this.props.nearClip;
-                this.material.uniforms.maxdepth.value = this.props.farClip;
-                this.material.uniforms.focalLength.value = this.props.depthFocalLength;
-                this.material.uniforms.principalPoint.value = this.props.depthPrincipalPoint;
-                this.material.uniforms.imageDimensions.value = this.props.depthImageSize;
-                this.material.uniforms.crop.value = this.props.crop;
+                this.buildMaterial();
 
-                let ex = this.props.extrinsics;
-                this.material.uniforms.extrinsics.value.set(
-                    ex["e00"], ex["e10"], ex["e20"], ex["e30"],
-                    ex["e01"], ex["e11"], ex["e21"], ex["e31"],
-                    ex["e02"], ex["e12"], ex["e22"], ex["e32"],
-                    ex["e03"], ex["e13"], ex["e23"], ex["e33"],
-                );
-
+                this.buildGeometry();
+                /*
                 //Create the collider
                 let boxGeo = new THREE.BoxGeometry(this.props.boundsSize.x, this.props.boundsSize.y, this.props.boundsSize.z);
                 let boxMat = new THREE.MeshBasicMaterial(
@@ -178,55 +185,30 @@ export default class DepthKit {
                         wireframe: true
                     }
                 );
+                */
+                //this.collider = new THREE.Mesh(boxGeo, boxMat);
 
-                this.collider = new THREE.Mesh(boxGeo, boxMat);
-
-
-                this.collider.visible = false;
-                this.mesh.add(this.collider);
+                //this.collider.visible = false;
+                //this.mesh.add(this.collider);
 
                 //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
-                THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
-                this.collider.position.set(0,1,0);
+                //THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
+                //this.collider.position.set(0,1,0);
+
+                //Make sure we don't hide the character - this helps the objects in webVR
+                this.mesh.frustumCulled = false;
+
+                //Apend the object to the Three Object3D that way it's accsesable from the instance
+                this.mesh.depthkit = this;
+                this.mesh.name = 'depthkit';
+
+                //Return the object3D so it could be added to the scene
+                if(_callback){
+                    _callback(this.mesh);
+                }
+
             }
         );
-
-        //Make sure we don't hide the character - this helps the objects in webVR
-        this.mesh.frustumCulled = false;
-
-        //Apend the object to the Three Object3D that way it's accsesable from the instance
-        this.mesh.depthkit = this;
-        this.mesh.name = 'depthkit';
-
-        //Return the object3D so it could be added to the scene
-        return this.mesh;
-    }
-
-     static buildGeomtery() {
-
-        DepthKit.geo = new THREE.Geometry();
-
-        for (let y = 0; y < VERTS_TALL; y++) {
-            for (let x = 0; x < VERTS_WIDE; x++) {
-                DepthKit.geo.vertices.push(new THREE.Vector3(x, y, 0));
-            }
-        }
-        for (let y = 0; y < VERTS_TALL - 1; y++) {
-            for (let x = 0; x < VERTS_WIDE - 1; x++) {
-                DepthKit.geo.faces.push(
-                    new THREE.Face3(
-                        x + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + y * (VERTS_WIDE)
-                    ));
-                DepthKit.geo.faces.push(
-                    new THREE.Face3(
-                        x + 1 + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + (y + 1) * (VERTS_WIDE)
-                    ));
-            }
-        }
     }
 
     /*
