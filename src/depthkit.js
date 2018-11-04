@@ -17,38 +17,43 @@
 // bundling of GLSL code
 const glsl = require('glslify');
 
-//For building the geomtery
-const VERTS_WIDE = 256;
-const VERTS_TALL = 256;
-
 export default class DepthKit {
+    
+    //Reduction factor of the mesh.
+    setMeshScalar(_scalar)
+    {
+        this.meshScalar = _scalar;
+    }
 
     buildGeometry() {
 
-        var meshScalar = 4.0; //TODO make dynamic in constructor
-        var vertexStep = new THREE.Vector2( meshScalar / this.props.textureWidth, meshScalar / this.props.textureHeight)
+
+        var vertsWide = (this.props.textureWidth  / this.meshScalar) + 1;
+        var vertsTall = (this.props.textureHeight / this.meshScalar) + 1;
+
+        var vertexStep = new THREE.Vector2( this.meshScalar / this.props.textureWidth, this.meshScalar / this.props.textureHeight)
         this.geometry = new THREE.Geometry();
 
-        for (let y = 0; y < VERTS_TALL; y++) {
-            for (let x = 0; x < VERTS_WIDE; x++) {
+        for (let y = 0; y < vertsTall; y++) {
+            for (let x = 0; x < vertsWide; x++) {
                 this.geometry.vertices.push(new THREE.Vector3(x * vertexStep.x, y * vertexStep.y, 0));
             }
         }
 
-        for (let y = 0; y < VERTS_TALL - 1; y++) {
-            for (let x = 0; x < VERTS_WIDE - 1; x++) {
+        for (let y = 0; y < vertsTall - 1; y++) {
+            for (let x = 0; x < vertsWide - 1; x++) {
                 this.geometry.faces.push(
                     new THREE.Face3(
-                        x + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + y * (VERTS_WIDE)
+                        x + y * vertsWide,
+                        x + (y + 1) * vertsWide,
+                        (x + 1) + y * vertsWide
                     ));
 
                 this.geometry.faces.push(
                     new THREE.Face3(
-                        x + 1 + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + (y + 1) * (VERTS_WIDE)
+                        x + 1 + y * vertsWide,
+                        x + (y + 1) * vertsWide,
+                        (x + 1) + (y + 1) * vertsWide
                     ));
             }
         }
@@ -95,7 +100,7 @@ export default class DepthKit {
                 },
                 "meshScalar": {
                     type: "f",
-                    value: 4.0 //TODO Make dynamic
+                    value: this.meshScalar
                 },
                 "focalLength": {
                     value: this.props.depthFocalLength
@@ -164,6 +169,10 @@ export default class DepthKit {
 
         //JSON props once loaded
         //this.props;
+        if(!this.meshScalar)
+        {
+            this.meshScalar = 2.0; //default.
+        }
 
         //Make sure to read the config file as json (i.e JSON.parse)
         this.jsonLoader = new THREE.FileLoader(this.manager);
