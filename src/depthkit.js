@@ -23,21 +23,24 @@ const VERTS_TALL = 256;
 
 export default class DepthKit {
 
-    constructor(_type = 'mesh', _props, _movie, _poster) {
+    constructor(_type = 'mesh', _props, _movie) {
 
         //Load the shaders
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
 
-
-        //Video element
+        //Crate video element
         this.video = document.createElement('video');
+      
+        //Set the crossOrigin and props
         this.video.id = 'depthkit-video';
         this.video.crossOrigin = 'anonymous';
         this.video.setAttribute('crossorigin', 'anonymous');
         this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
         this.video.setAttribute('playsinline', 'playsinline');
         this.video.src = _movie;
+
+        //Don't autostart don't loop
         this.video.autoplay = false;
         this.video.loop = false;
         this.video.load();

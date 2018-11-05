@@ -29,6 +29,7 @@
     "glslify": "^6.1.1",
     "http-server": "^0.10.0",
     "uglify-js": "^3.3.23",
+    "vimeo": "^2.0.2",
     "watchify": "^3.11.0"
   },
   "dependencies": {
