@@ -62,7 +62,7 @@ var DepthKit = function () {
         //Crate video element
         this.video = document.createElement('video');
 
-        //Set the crossOrigin
+        //Set the crossOrigin and props
         this.video.id = 'depthkit-video';
         this.video.crossOrigin = 'anonymous';
         this.video.setAttribute('crossorigin', 'anonymous');

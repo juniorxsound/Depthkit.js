@@ -8,13 +8,14 @@
 	<!-- Origin Trial Token, feature = WebXR Device API (For Chrome M69+), origin = https://juniorxsound.github.io, expires = 2018-12-16 -->
 	<meta http-equiv="origin-trial" data-feature="WebXR Device API (For Chrome M69+)" data-expires="2018-12-16" content="AuS/YhJtqzF5BY3znB6IBQpzn1B7Bafxwk8u7kfdjkPl5u4O29O2kGnT3x2TzeZSM7kmu1O+mwRZqZkk9b1NVwIAAABxeyJvcmlnaW4iOiJodHRwczovL2p1bmlvcnhzb3VuZC5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYlhSRGV2aWNlTTY5IiwiZXhwaXJ5IjoxNTQ1MDAzODQ2LCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
 	<style>
-		body {
-			background: #000;
-			color: #fff;
+		body,
+		html {
 			padding: 0;
 			margin: 0;
-			overflow: hidden;
-			font-family: georgia;
+			width: 100%;
+			height: 100%;
+			-webkit-user-select: none;
+			user-select: none;
 			text-align: center;
 		}
 
@@ -43,139 +44,143 @@
 	<script src="../build/depthkit.js"></script>
 
 	<div id="info">
-		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple example using Three.js<br/> Written
+		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple example using Three.js<br />
+		Written
 		by <a href="http://orfleisher.com">juniorxsound</a>
+		<button onclick="enterAR()">Enter AR</button>
 	</div>
 
 	<script>
-	let scene, camera, renderer, activeRealityType;
-	THREE.WebXRUtils.getDisplays().then(init);
+		let scene, camera, renderer;
+		let activeRealityType = 'ar';
+		THREE.WebXRUtils.getDisplays().then(init);
 
-	function init(displays) {
-		container = document.createElement('div');
-		document.body.appendChild(container);
+		function init(displays) {
+			container = document.createElement('div');
+			document.body.appendChild(container);
 
-		scene = new THREE.Scene();
-		camera = new THREE.PerspectiveCamera();
-		scene.add(camera);
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera();
+			scene.add(camera);
 
-		renderer = new THREE.WebGLRenderer({ alpha: true });
-		renderer.autoClear = false;
-		container.appendChild(renderer.domElement);
+			renderer = new THREE.WebGLRenderer({ alpha: true });
+			renderer.autoClear = false;
+			container.appendChild(renderer.domElement);
 
-		//DepthKit(mesh/wire/points rendering, path to txt, path to video)
-		character = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt", "../assets/Chae/Chae_Demo_Upres.webm");
+			//DepthKit(mesh/wire/points rendering, path to txt, path to video)
+			character = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt", "../assets/Chae/Chae_Demo_Upres.webm");
 
-		//Position and rotation adjustments
-		character.scale.set(0.001, 0.001, 0.001);
-		character.position.set(-0.75, 1.1, 1.85);
+			//Position and rotation adjustments
+			character.scale.set(0.001, 0.001, 0.001);
+			character.position.set(-0.75, 1.1, 1.85);
 
-		//Depthkit methods
-		character.depthkit.setLoop(true);
-		character.depthkit.play();
+			//Depthkit methods
+			character.depthkit.setLoop(true);
+			character.depthkit.play();
 
-		//Add the character to the scene
-		scene.add(character);
+			//Add the character to the scene
+			scene.add(character);
 
-		window.addEventListener('resize', onWindowResize, false);
-		onWindowResize();
+			window.addEventListener('resize', onWindowResize, false);
+			onWindowResize();
 
-		// Set XR options
-		var options = {
-			// Flag to start AR if is the unique display available.
-			AR_AUTOSTART: true, // Default: true
-		}
-		// Init WebXR
-		renderer.xr = new THREE.WebXRManager(options, displays, renderer, camera, scene, update);
-
-		// Listen when a session is started or stopped
-		renderer.xr.addEventListener('sessionStarted', sessionStarted);
-		renderer.xr.addEventListener('sessionEnded', sessionEnded);
-
-		// Auto start if only has one AR display supported
-		if (!renderer.xr.autoStarted) {
-			// Add as many buttons as there are displays that can be started
-			addEnterButtons(displays);
-		}
-
-		renderer.setAnimationLoop(render);
-	}
-
-	function sessionStarted(data) {
-		activeRealityType = data.session.realityType;
-		// We can show or hide elements depending on the active reality type
-		// ar, magicWindow, vr
-	}
-
-	function sessionEnded(data) {
-		activeRealityType = 'magicWindow';
-		// We can show or hide elements depending on the active reality type
-		// ar, magicWindow, vr
-	}
-
-	function addEnterButtons(displays) {
-		for (var i = 0; i < displays.length; i++) {
-			var display = displays[i];
-			if (display.supportedRealities.vr) {
-				// Add ENTER VR button
-				// and to call enterVR on 'click' event
+			// Set XR options
+			var options = {
+				// Flag to start AR if is the unique display available.
+				AR_AUTOSTART: true, // Default: true
 			}
-			if (display.supportedRealities.ar) {
-				// Add ENTER AR button
-				// and to call enterVR on 'click' event
+			// Init WebXR
+			renderer.xr = new THREE.WebXRManager(options, displays, renderer, camera, scene, update);
+
+			// Listen when a session is started or stopped
+			renderer.xr.addEventListener('sessionStarted', sessionStarted);
+			renderer.xr.addEventListener('sessionEnded', sessionEnded);
+
+			// Auto start if only has one AR display supported
+			if (!renderer.xr.autoStarted) {
+				// Add as many buttons as there are displays that can be started
+				addEnterButtons(displays);
+			}
+
+			renderer.setAnimationLoop(render);
+		}
+
+		function sessionStarted(data) {
+			activeRealityType = data.session.realityType;
+			// We can show or hide elements depending on the active reality type
+			// ar, magicWindow, vr
+		}
+
+		function sessionEnded(data) {
+			activeRealityType = 'magicWindow';
+			// We can show or hide elements depending on the active reality type
+			// ar, magicWindow, vr
+		}
+
+		function addEnterButtons(displays) {
+			for (var i = 0; i < displays.length; i++) {
+				var display = displays[i];
+				if (display.supportedRealities.vr) {
+					// Add ENTER VR button
+					// and to call enterVR on 'click' event
+				}
+				if (display.supportedRealities.ar) {
+					// Add ENTER AR button
+					// and to call enterVR on 'click' event
+				}
 			}
 		}
-	}
 
-	function enterAR() {
-		renderer.xr.startSession(display, 'ar', true);
-	}
+		function enterAR() {
+			character.depthkit.play();
+			renderer.xr.startSession(display, 'ar', true);
+		}
 
-	function exitAR() {
-		renderer.xr.endSession();
-	}
-
-	function enterVR() {
-		renderer.xr.startPresenting();
-	}
-
-	// To detect and exitVR
-	window.addEventListener('vrdisplaypresentchange', (evt) => {
-		// Polyfill places cameraActivateddisplay inside the detail property
-		var display = evt.display || evt.detail.display;
-		if (!display.isPresenting) {
-			// Exiting VR.
+		function exitAR() {
 			renderer.xr.endSession();
 		}
-	});
 
-	function onWindowResize() {
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix();
-	}
-
-	// Called once per frame, before render, to give the app a chance to update this.scene
-	function update(frame) {
-		render();
-	}
-
-	function render() {
-		// We can different commands depending on the active reality type
-		// ar, magicWindow, vr
-		switch (activeRealityType) {
-			case 'ar':
-			case 'magicWindow':
-			case 'vr':
-
-				break;
+		function enterVR() {
+			renderer.xr.startPresenting();
 		}
 
-		// Only renderer.render out of renderer.xr if the session is not active
-		if (!renderer.xr.sessionActive) {
-			renderer.setSize(window.innerWidth, window.innerHeight);
-			renderer.render(scene, camera);
+		// To detect and exitVR
+		window.addEventListener('vrdisplaypresentchange', (evt) => {
+			// Polyfill places cameraActivateddisplay inside the detail property
+			var display = evt.display || evt.detail.display;
+			if (!display.isPresenting) {
+				// Exiting VR.
+				renderer.xr.endSession();
+			}
+		});
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
 		}
-	}
+
+		// Called once per frame, before render, to give the app a chance to update this.scene
+		function update(frame) {
+			render();
+		}
+
+		function render() {
+			// We can different commands depending on the active reality type
+			// ar, magicWindow, vr
+			switch (activeRealityType) {
+				case 'ar':
+				case 'magicWindow':
+				case 'vr':
+
+					break;
+			}
+
+			// Only renderer.render out of renderer.xr if the session is not active
+			if (!renderer.xr.sessionActive) {
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.render(scene, camera);
+			}
+		}
 	</script>
 
 </body>
