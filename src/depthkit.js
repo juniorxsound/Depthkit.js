@@ -17,25 +17,17 @@
 // bundling of GLSL code
 const glsl = require('glslify');
 
-import VimeoWrapper from './vimeo';
-
 //For building the geomtery
 const VERTS_WIDE = 256;
 const VERTS_TALL = 256;
 
 export default class DepthKit {
 
-    constructor(_type = 'mesh', _props, _movie, _vimeo_token) {
+    constructor(_type = 'mesh', _props, _movie) {
 
         //Load the shaders
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
-
-        //Check to see wheter we are loading a local file or a vimeo video ID
-        let isUsingLocalFile = true;
-        if(_movie.indexOf('.mp4') == -1 && _movie.indexOf('.webm') == -1) isUsingLocalFile = false;
-
-        // console.log('Is using local video file? ', isUsingLocalFile);
 
         //Crate video element
         this.video = document.createElement('video');
@@ -43,28 +35,7 @@ export default class DepthKit {
         //Set the crossOrigin
         this.video.crossOrigin = 'anonymous';
         this.video.setAttribute('crossorigin', 'anonymous');
-
-        if(isUsingLocalFile){
-          this.video.src = _movie;
-        } else {
-          this.vimeoWrapper = new VimeoWrapper(_vimeo_token);
-          this.vimeoWrapper.requestVideo(_movie).then((videos)=>{
-
-            //Set the source comming in from the vimeo API
-            this.video.src = videos[1].link;
-
-            //Play it
-            this.video.play();
-
-            //Also show it in the DOM
-            this.video.id = 'volumetric_vimeo';
-            document.body.append(this.video);
-
-            // console.log(videos);
-          }).catch((e)=>{
-            console.warn(e);
-          });
-        }
+        this.video.src = _movie;
 
         //Don't autostart don't loop
         this.video.autoplay = false;
