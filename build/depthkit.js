@@ -63,13 +63,17 @@ var DepthKit = function () {
         this.video = document.createElement('video');
 
         //Set the crossOrigin
+        this.video.id = 'depthkit-video';
         this.video.crossOrigin = 'anonymous';
         this.video.setAttribute('crossorigin', 'anonymous');
+        this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
+        this.video.setAttribute('playsinline', 'playsinline');
         this.video.src = _movie;
 
         //Don't autostart don't loop
         this.video.autoplay = false;
         this.video.loop = false;
+        this.video.load();
 
         //Create a video texture to be passed to the shader
         this.videoTexture = new THREE.VideoTexture(this.video);
