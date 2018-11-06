@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>DepthKit - Simple example using Three.js</title>
+	<title>Depthkit - Simple example using Three.js</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<!-- Origin Trial Token, feature = WebVR (For Chrome M59+), origin = https://juniorxsound.github.io, expires = 2017-08-16 -->
@@ -38,19 +38,19 @@
 <body>
 
 	<!--Three.js-->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/98/three.min.js"></script>
 	<!-- Orbit Controls -->
 	<script src="lib/OrbitControls.js"></script>
-	<!--DepthKit.js-->
+	<!--Depthkit.js-->
 	<script src="../build/depthkit.js"></script>
 
 	<div id="info">
-		<a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple example using Three.js<br/> Written
+		<a href="http://depthkit.tv" target="_blank" rel="noopener">Depthkit.js</a> - Simple example using Three.js<br/> Written
 		by <a href="http://orfleisher.com">juniorxsound</a>
 	</div>
 
 	<script>
-	
+
 		//Some general Three.js components
 		var renderer,
 		scene,
@@ -58,7 +58,7 @@
 		controls;
 
 		var depthkit;
-		//DepthKit character
+		//Depthkit character
 		var character;
 
 		init();
@@ -73,36 +73,42 @@
 
 			// Setup scene
 			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x282828 );
+			scene.fog = new THREE.Fog( 0x282828, 0.0, 10.0 );
 
 			// Setup camera
-			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .01, 100 );
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .01, 20 );
 			camera.position.set( 0, 2, 3 );
 
 			// Setup controls
 			controls = new THREE.OrbitControls( camera );
+			controls.target.set(0, 0.75, 0);
+			camera.lookAt(controls.target);
 
 			// A grid helper as a floor reference
-			var gridHelper = new THREE.GridHelper( 10, 10 );
+			var gridHelper = new THREE.GridHelper( 50, 50 );
 			scene.add(gridHelper);
-			
-			depthkit = new DepthKit();
-			depthkit.setMeshScalar(4); 
-			depthkit.load('../assets/Chae/Chae_Demo_Upres.txt', '../assets/Chae/Chae_Demo_Upres.mp4',
-				character =>{
+
+			depthkit = new Depthkit();
+			depthkit.setMeshScalar(4);
+			depthkit.load('../assets/John/John.txt', '../assets/John/John.mp4',
+				dkCharacter => {
+					character = dkCharacter;
 
 					//Position and rotation adjustments
-					character.scale.set( 0.001, 0.001, 0.001 );
-					character.position.set( -0.75, 1.1, 1.85 );
+					character.rotation.set( Math.PI - 0.25, 0, Math.PI / -2.0 );
+					character.position.set( -0.25, 1.35, 1.85 );
 
-					//Depthkit methods
-					character.depthkit.setLoop( true );
-					character.depthkit.play();
+					// Depthkit video playback control
+					depthkit.video.muted = "muted"; // Necessary for auto-play in chrome now
+					depthkit.setLoop( true );
+					depthkit.play();
 
 					//Add the character to the scene
 					scene.add(character);
-					console.log("Adding character");
 
 				});
+
 
 			window.addEventListener( 'resize', onWindowResize, false );
 

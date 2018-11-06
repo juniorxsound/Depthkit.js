@@ -1,11 +1,11 @@
-//DepthKit.js class
-import DepthKit from './depthkit'
+//Depthkit.js class
+import Depthkit from './depthkit'
 
 //Make it global
 if(typeof window !== 'undefined' && typeof window.THREE === 'object'){
-  window.DepthKit = DepthKit;
+  window.Depthkit = Depthkit;
 } else {
-  console.warn('[DepthKit.js] It seems like THREE is not included in your code, try including it before DepthKit.js');
+  console.warn('[Depthkit.js] It seems like THREE is not included in your code, try including it before Depthkit.js');
 }
 
-export { DepthKit };
+export { Depthkit };

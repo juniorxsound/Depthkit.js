@@ -1,7 +1,7 @@
 # Depthkit.js
 [![Build Status](https://travis-ci.org/juniorxsound/DepthKit.js.svg?branch=master)](https://travis-ci.org/juniorxsound/DepthKit.js)                [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-A plugin for visualising [DepthKit](http://www.depthkit.tv/) volumteric captures using [Three.js](https://github.com/mrdoob/three.js) in WebGL. The plugin requires Three.js and a DepthKit *combined-per-pixel* video export from Visualise.
+A plugin for visualising [DepthKit](http://www.depthkit.tv/) volumteric captures using [Three.js](https://github.com/mrdoob/three.js) in WebGL. The plugin requires Three.js and a DepthKit *combined-per-pixel* video export.
 The plugin was developed for [Tzina: A Symphony of Longing](https://tzina.space). The project's code is [available here](https://github.com/Avnerus/tzina).
 
 ![Depthkit.js screencapture](https://raw.githubusercontent.com/juniorxsound/DepthKit.js/master/assets/gh/wire.gif)
@@ -12,42 +12,38 @@ Alternatively, if you use Node.js you can install the package with npm using ```
 
 ### Creating a character
 ```JavaScript
-var character = new DepthKit("mesh", "meta.txt", "take.mp4");
-
-scene.add(character);
+var depthkit = new DepthKit();
+depthkit.load(
+	"myClip.txt",
+	"myClip.mp4",
+	character => {
+		scene.add(character);
+	}
+);
 ```
-Where the first argument takes a string for the rendering type (i.e "mesh", "wire" or "points"), the second and the third arguments are the path to the metadata file exported by Visualise and the top-bottom video.
+Where the first and second arguments are the path to the metadata file and the *combined-per-pixel* video exported by Depthkit.
+The third argument is a callback that is passed a THREE.Object3D object representing the Depthkit character.
 
 ### Controlling a character
-Calling ```new DepthKit()``` returns a three.js Object3D which has all the regular properties and methods (e.g character.position.set()). Inside the character there is a ```depthkit``` object that has the neccesery methods to control the playback and rendering of the character
+Calling ```new DepthKit()``` returns an object that has the neccesery methods to control the playback and rendering of the character
 
-```character.depthkit.play()``` - Play the video
+```depthkit.play()``` - Play the video
 
-```character.depthkit.pause()``` - Pause the video
+```depthkit.pause()``` - Pause the video
 
-```character.depthkit.stop()``` - Stop and rewind to begining
+```depthkit.stop()``` - Stop and rewind to begining
 
-```character.depthkit.setLoop(isLooping)``` - Set loop to true or false
+```depthkit.setLoop(isLooping)``` - Set loop to true or false
 
-```character.depthkit.setVolume(volume)``` - Change the volume of the audio
+```depthkit.setVolume(volume)``` - Change the volume of the audio
 
-```character.depthkit.setPointSize(size)``` - Only when rendering points
+```depthkit.setOpacity(opacity)``` - Change opacity
 
-```character.depthkit.setOpacity(opacity)``` - Change opacity
-
-```character.depthkit.setLineWidth(width)``` - Change line width when rendering wireframe
-
-```character.depthkit.dispose()```
+```depthkit.dispose()```
 - Dispose and clean the character instance
 
 ## Examples:
 [Simple DepthKit example](https://juniorxsound.github.io/DepthKit.js/examples/simple.html)
-
-[Mouse hover example](https://juniorxsound.github.io/DepthKit.js/examples/raycast.html)
-
-[Simple webVR example](https://juniorxsound.github.io/DepthKit.js/examples/webvr_simple.html)
-
-[Raycasting webVR example](https://juniorxsound.github.io/DepthKit.js/examples/webvr_raycast.html)
 
 ## How to contribute:
 1. Fork/Clone/Download

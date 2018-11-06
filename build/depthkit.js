@@ -21,7 +21,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-//DepthKit.js plugin for Three.js
+//Depthkit.js plugin for Three.js
 
 /**
  * Originally written by
@@ -40,12 +40,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // bundling of GLSL code
 var glsl = require('glslify');
 
-var DepthKit = function () {
-    function DepthKit() {
-        _classCallCheck(this, DepthKit);
+var Depthkit = function () {
+    function Depthkit() {
+        _classCallCheck(this, Depthkit);
     }
 
-    _createClass(DepthKit, [{
+    _createClass(Depthkit, [{
         key: 'setMeshScalar',
 
 
@@ -201,30 +201,10 @@ var DepthKit = function () {
                 _this.buildMaterial();
 
                 _this.buildGeometry();
-                /*
-                //Create the collider
-                let boxGeo = new THREE.BoxGeometry(this.props.boundsSize.x, this.props.boundsSize.y, this.props.boundsSize.z);
-                let boxMat = new THREE.MeshBasicMaterial(
-                    {
-                        color: 0xffff00,
-                        wireframe: true
-                    }
-                );
-                */
-                //this.collider = new THREE.Mesh(boxGeo, boxMat);
-
-                //this.collider.visible = false;
-                //this.mesh.add(this.collider);
-
-                //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
-                //THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
-                //this.collider.position.set(0,1,0);
 
                 //Make sure we don't hide the character - this helps the objects in webVR
                 _this.mesh.frustumCulled = false;
 
-                //Apend the object to the Three Object3D that way it's accsesable from the instance
-                _this.mesh.depthkit = _this;
                 _this.mesh.name = 'depthkit';
 
                 //Return the object3D so it could be added to the scene
@@ -233,33 +213,10 @@ var DepthKit = function () {
                 }
             });
         }
-
-        /*
-        * Render related methods
-        */
-
-    }, {
-        key: 'setPointSize',
-        value: function setPointSize(size) {
-            if (this.material.uniforms.isPoints.value) {
-                this.material.uniforms.pointSize.value = size;
-            } else {
-                console.warn('Can not set point size because the current character is not set to render points');
-            }
-        }
     }, {
         key: 'setOpacity',
         value: function setOpacity(opacity) {
             this.material.uniforms.opacity.value = opacity;
-        }
-    }, {
-        key: 'setLineWidth',
-        value: function setLineWidth(width) {
-            if (this.material.wireframe) {
-                this.material.wireframeLinewidth = width;
-            } else {
-                console.warn('Can not set the line width because the current character is not set to render wireframe');
-            }
         }
 
         /*
@@ -302,11 +259,6 @@ var DepthKit = function () {
             this.material.uniforms.time.value = time;
         }
     }, {
-        key: 'toggleColliderVisiblity',
-        value: function toggleColliderVisiblity() {
-            this.mesh.collider.visible = !this.mesh.collider.visible;
-        }
-    }, {
         key: 'dispose',
         value: function dispose() {
             //Remove the mesh from the scene
@@ -325,10 +277,10 @@ var DepthKit = function () {
         }
     }]);
 
-    return DepthKit;
+    return Depthkit;
 }();
 
-exports.default = DepthKit;
+exports.default = Depthkit;
 
 },{"glslify":1}],3:[function(require,module,exports){
 'use strict';
@@ -336,9 +288,9 @@ exports.default = DepthKit;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DepthKit = undefined;
+exports.Depthkit = undefined;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; //DepthKit.js class
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; //Depthkit.js class
 
 
 var _depthkit = require('./depthkit');
@@ -349,11 +301,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //Make it global
 if (typeof window !== 'undefined' && _typeof(window.THREE) === 'object') {
-  window.DepthKit = _depthkit2.default;
+  window.Depthkit = _depthkit2.default;
 } else {
-  console.warn('[DepthKit.js] It seems like THREE is not included in your code, try including it before DepthKit.js');
+  console.warn('[Depthkit.js] It seems like THREE is not included in your code, try including it before Depthkit.js');
 }
 
-exports.DepthKit = _depthkit2.default;
+exports.Depthkit = _depthkit2.default;
 
 },{"./depthkit":2}]},{},[3]);

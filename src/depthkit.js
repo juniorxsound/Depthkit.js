@@ -1,4 +1,4 @@
-//DepthKit.js plugin for Three.js
+//Depthkit.js plugin for Three.js
 
 /**
  * Originally written by
@@ -17,8 +17,8 @@
 // bundling of GLSL code
 const glsl = require('glslify');
 
-export default class DepthKit {
-    
+export default class Depthkit {
+
     //Reduction factor of the mesh.
     setMeshScalar(_scalar)
     {
@@ -26,7 +26,6 @@ export default class DepthKit {
     }
 
     buildGeometry() {
-
 
         var vertsWide = (this.props.textureWidth  / this.meshScalar) + 1;
         var vertsTall = (this.props.textureHeight / this.meshScalar) + 1;
@@ -67,7 +66,7 @@ export default class DepthKit {
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
 
-        var extrinsics = new THREE.Matrix4(); 
+        var extrinsics = new THREE.Matrix4();
         let ex = this.props.extrinsics;
         extrinsics.set(
             ex["e00"], ex["e10"], ex["e20"], ex["e30"],
@@ -76,7 +75,7 @@ export default class DepthKit {
             ex["e03"], ex["e13"], ex["e23"], ex["e33"]
         );
 
-        var extrinsicsInv =  new THREE.Matrix4(); 
+        var extrinsicsInv =  new THREE.Matrix4();
         extrinsicsInv.getInverse(extrinsics);
 
         //Material
@@ -185,30 +184,10 @@ export default class DepthKit {
                 this.buildMaterial();
 
                 this.buildGeometry();
-                /*
-                //Create the collider
-                let boxGeo = new THREE.BoxGeometry(this.props.boundsSize.x, this.props.boundsSize.y, this.props.boundsSize.z);
-                let boxMat = new THREE.MeshBasicMaterial(
-                    {
-                        color: 0xffff00,
-                        wireframe: true
-                    }
-                );
-                */
-                //this.collider = new THREE.Mesh(boxGeo, boxMat);
-
-                //this.collider.visible = false;
-                //this.mesh.add(this.collider);
-
-                //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
-                //THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
-                //this.collider.position.set(0,1,0);
 
                 //Make sure we don't hide the character - this helps the objects in webVR
                 this.mesh.frustumCulled = false;
 
-                //Apend the object to the Three Object3D that way it's accsesable from the instance
-                this.mesh.depthkit = this;
                 this.mesh.name = 'depthkit';
 
                 //Return the object3D so it could be added to the scene
@@ -220,27 +199,8 @@ export default class DepthKit {
         );
     }
 
-    /*
-    * Render related methods
-    */
-    setPointSize(size) {
-        if (this.material.uniforms.isPoints.value) {
-            this.material.uniforms.pointSize.value = size;
-        } else {
-            console.warn('Can not set point size because the current character is not set to render points');
-        }
-    }
-
     setOpacity(opacity) {
         this.material.uniforms.opacity.value = opacity;
-    }
-
-    setLineWidth(width){
-      if (this.material.wireframe){
-        this.material.wireframeLinewidth = width;
-      } else {
-        console.warn('Can not set the line width because the current character is not set to render wireframe');
-      }
     }
 
     /*
@@ -273,10 +233,6 @@ export default class DepthKit {
 
     update(time) {
         this.material.uniforms.time.value = time;
-    }
-
-    toggleColliderVisiblity(){
-      this.mesh.collider.visible = !this.mesh.collider.visible;
     }
 
     dispose() {
