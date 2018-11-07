@@ -9,7 +9,7 @@ varying vec2 vUv;
 varying vec2 vUvDepth;
 varying vec4 vPos;
 float _DepthBrightnessThreshold = 0.8;  // per-pixel brightness threshold, used to refine edge geometry from eroneous edge depth samples
-float _SheerAngleThreshold = 0.0001;       // per-pixel internal edge threshold (sheer angle of geometry at that pixel)
+float _SheerAngleThreshold = 0.04;       // per-pixel internal edge threshold (sheer angle of geometry at that pixel)
 #define BRIGHTNESS_THRESHOLD_OFFSET 0.01
 #define FLOAT_EPS 0.00001
 #define CLIP_EPSILON 0.005
