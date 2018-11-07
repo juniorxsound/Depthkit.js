@@ -42,7 +42,7 @@ Calling ```new DepthKit()``` returns an object that has the neccesery methods to
 - Dispose and clean the character instance
 
 ## Examples:
-[Simple DepthKit example](https://juniorxsound.github.io/DepthKit.js/examples/simple.html)
+[Simple Depthkit example](https://juniorxsound.github.io/DepthKit.js/examples/simple.html)
 
 ## How to contribute:
 1. Fork/Clone/Download
