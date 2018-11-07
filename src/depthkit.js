@@ -181,6 +181,22 @@ export default class Depthkit {
             data => {
                 this.props = data;
 
+                if (this.props.textureWidth == undefined || this.props.textureHeight == undefined) {
+                    this.props.textureWidth = this.props.depthImageSize.x;
+                    this.props.textureHeight = this.props.depthImageSize.y * 2;
+                }
+                if (this.props.extrinsics == undefined) {
+                    this.props.extrinsics = {
+                        e00: 1, e01: 0, e02: 0, e03: 0,
+                        e10: 0, e11: 1, e12: 0, e13: 0,
+                        e20: 0, e21: 0, e22: 1, e23: 0,
+                        e30: 0, e31: 0, e32: 0, e33: 1
+                    };
+                }
+                if (this.props.crop == undefined) {
+                    this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
+                }
+
                 this.buildMaterial();
 
                 this.buildGeometry();
