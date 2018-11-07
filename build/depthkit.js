@@ -198,6 +198,22 @@ var Depthkit = function () {
             function (data) {
                 _this.props = data;
 
+                if (_this.props.textureWidth == undefined || _this.props.textureHeight == undefined) {
+                    _this.props.textureWidth = _this.props.depthImageSize.x;
+                    _this.props.textureHeight = _this.props.depthImageSize.y * 2;
+                }
+                if (_this.props.extrinsics == undefined) {
+                    _this.props.extrinsics = {
+                        e00: 1, e01: 0, e02: 0, e03: 0,
+                        e10: 0, e11: 1, e12: 0, e13: 0,
+                        e20: 0, e21: 0, e22: 1, e23: 0,
+                        e30: 0, e31: 0, e32: 0, e33: 1
+                    };
+                }
+                if (_this.props.crop == undefined) {
+                    _this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
+                }
+
                 _this.buildMaterial();
 
                 _this.buildGeometry();
