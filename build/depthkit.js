@@ -17,6 +17,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -52,11 +54,13 @@ var Depthkit = function (_THREE$Object3D) {
 
         var _this = _possibleConstructorReturn(this, (Depthkit.__proto__ || Object.getPrototypeOf(Depthkit)).call(this));
 
+        _this.manager = new THREE.LoadingManager();
+
+        _this.meshScalar = 2.0;
+
         if (Depthkit._geometryLookup == null) {
             Depthkit._geometryLookup = {};
         }
-
-        console.log(Object.keys(Depthkit._geometryLookup).length);
         return _this;
     }
 
@@ -81,7 +85,7 @@ var Depthkit = function (_THREE$Object3D) {
                 Depthkit._geometryLookup[vertsWide * vertsTall] = instanceGeometry;
             }
 
-            this.add(new THREE.Mesh(instanceGeometry, this.material));
+            this.add(new THREE.Mesh(instanceGeometry, this._material));
         }
     }, {
         key: 'createGeometryBuffer',
@@ -131,7 +135,7 @@ var Depthkit = function (_THREE$Object3D) {
             extrinsicsInv.getInverse(extrinsics);
 
             //Material
-            this.material = new THREE.ShaderMaterial({
+            this._material = new THREE.ShaderMaterial({
                 uniforms: {
                     "map": {
                         type: "t",
@@ -191,81 +195,134 @@ var Depthkit = function (_THREE$Object3D) {
             });
 
             //Make the shader material double sided
-            this.material.side = THREE.DoubleSide;
+            this._material.side = THREE.DoubleSide;
+        }
+    }, {
+        key: 'createVideoElement',
+        value: function createVideoElement(_src) {
+            var vid = document.createElement('video');
+            vid.id = 'depthkit-video';
+            vid.crossOrigin = 'anonymous';
+            vid.setAttribute('crossorigin', 'anonymous');
+            vid.setAttribute('webkit-playsinline', 'webkit-playsinline');
+            vid.setAttribute('playsinline', 'playsinline');
+            vid.src = _src;
+            vid.autoplay = false;
+            vid.loop = false;
+            vid.load();
+
+            return vid;
+        }
+    }, {
+        key: 'createVideoTexture',
+        value: function createVideoTexture(_videoElement) {
+            var videoTex = new THREE.VideoTexture(this.video);
+            videoTex.minFilter = THREE.NearestFilter;
+            videoTex.magFilter = THREE.LinearFilter;
+            videoTex.format = THREE.RGBFormat;
+            videoTex.generateMipmaps = false;
+
+            return videoTex;
         }
     }, {
         key: 'load',
-        value: function load(_props, _movie, _callback) {
+        value: function load(_props, _movieUrl, _onComplete, _onError) {
             var _this2 = this;
 
-            //Video element
-            this.video = document.createElement('video');
-            this.video.id = 'depthkit-video';
-            this.video.crossOrigin = 'anonymous';
-            this.video.setAttribute('crossorigin', 'anonymous');
-            this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
-            this.video.setAttribute('playsinline', 'playsinline');
-            this.video.src = _movie;
-            this.video.autoplay = false;
-            this.video.loop = false;
-            this.video.load();
+            this.video = this.createVideoElement(_movieUrl);
 
-            //Create a video texture to be passed to the shader
-            this.videoTexture = new THREE.VideoTexture(this.video);
-            this.videoTexture.minFilter = THREE.NearestFilter;
-            this.videoTexture.magFilter = THREE.LinearFilter;
-            this.videoTexture.format = THREE.RGBFormat;
-            this.videoTexture.generateMipmaps = false;
+            this.videoTexture = this.createVideoTexture(this.video);
 
-            //Manages loading of assets internally
-            this.manager = new THREE.LoadingManager();
+            if (this.isJson(_props)) {
+                var jsonProps = JSON.parse(_props);
+                this.setProps(jsonProps);
+                this.createMesh();
 
-            //JSON props once loaded
-            //this.props;
-            if (!this.meshScalar) {
-                this.meshScalar = 2.0; //default.
+                if (_onComplete) {
+                    _onComplete(this);
+                }
+            } else {
+                this.loadPropsFromFile(_props).then(function (props) {
+                    _this2.setProps(props);
+                    _this2.createMesh();
+
+                    if (_onComplete) {
+                        _onComplete(_this2);
+                    }
+                }).catch(function (err) {
+                    if (_onError) {
+                        _onError(err);
+                    } else {
+                        console.error(err);
+                    }
+                });
+            }
+        }
+    }, {
+        key: 'createMesh',
+        value: function createMesh() {
+            this.buildMaterial();
+            this.buildGeometry();
+            this.children[0].frustumCulled = false;
+            this.children[0].name = 'depthkit';
+        }
+    }, {
+        key: 'loadPropsFromFile',
+        value: function loadPropsFromFile(filePath) {
+            var _this3 = this;
+
+            return new Promise(function (resolve, reject) {
+                var jsonLoader = new THREE.FileLoader(_this3.manager);
+                jsonLoader.setResponseType('json');
+                jsonLoader.load(filePath, function (data) {
+                    resolve(data);
+                }, null, function (err) {
+                    reject(err);
+                });
+            });
+        }
+    }, {
+        key: 'isJson',
+        value: function isJson(item) {
+            item = typeof item !== "string" ? JSON.stringify(item) : item;
+
+            try {
+                item = JSON.parse(item);
+            } catch (e) {
+                return false;
             }
 
-            this.jsonLoader = new THREE.FileLoader(this.manager);
-            this.jsonLoader.setResponseType('json');
-            this.jsonLoader.load(_props, function (data) {
-                _this2.props = data;
+            if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) === "object" && item !== null) {
+                return true;
+            }
 
-                if (_this2.props.textureWidth == undefined || _this2.props.textureHeight == undefined) {
-                    _this2.props.textureWidth = _this2.props.depthImageSize.x;
-                    _this2.props.textureHeight = _this2.props.depthImageSize.y * 2;
-                }
-                if (_this2.props.extrinsics == undefined) {
-                    _this2.props.extrinsics = {
-                        e00: 1, e01: 0, e02: 0, e03: 0,
-                        e10: 0, e11: 1, e12: 0, e13: 0,
-                        e20: 0, e21: 0, e22: 1, e23: 0,
-                        e30: 0, e31: 0, e32: 0, e33: 1
-                    };
-                }
-                if (_this2.props.crop == undefined) {
-                    _this2.props.crop = { x: 0, y: 0, z: 1, w: 1 };
-                }
+            return false;
+        }
+    }, {
+        key: 'setProps',
+        value: function setProps(_props) {
+            this.props = _props;
 
-                _this2.buildMaterial();
-
-                _this2.buildGeometry();
-
-                //Make sure we don't hide the character - this helps the objects in webVR
-                _this2.children[0].frustumCulled = false;
-
-                _this2.children[0].name = 'depthkit';
-
-                //Return the object3D so it could be added to the scene
-                if (_callback) {
-                    _callback(_this2);
-                }
-            });
+            if (this.props.textureWidth == undefined || this.props.textureHeight == undefined) {
+                this.props.textureWidth = this.props.depthImageSize.x;
+                this.props.textureHeight = this.props.depthImageSize.y * 2;
+            }
+            if (this.props.extrinsics == undefined) {
+                this.props.extrinsics = {
+                    e00: 1, e01: 0, e02: 0, e03: 0,
+                    e10: 0, e11: 1, e12: 0, e13: 0,
+                    e20: 0, e21: 0, e22: 1, e23: 0,
+                    e30: 0, e31: 0, e32: 0, e33: 1
+                };
+            }
+            if (this.props.crop == undefined) {
+                this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
+            }
         }
     }, {
         key: 'setOpacity',
         value: function setOpacity(opacity) {
-            this.material.uniforms.opacity.value = opacity;
+            this._material.uniforms.opacity.value = opacity;
         }
 
         /*
@@ -305,7 +362,7 @@ var Depthkit = function (_THREE$Object3D) {
     }, {
         key: 'update',
         value: function update(time) {
-            this.material.uniforms.time.value = time;
+            this._material.uniforms.time.value = time;
         }
     }, {
         key: 'dispose',

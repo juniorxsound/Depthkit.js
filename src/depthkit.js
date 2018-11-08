@@ -22,11 +22,13 @@ export default class Depthkit extends THREE.Object3D {
     constructor() {
         super();
 
+        this.manager = new THREE.LoadingManager();
+
+        this.meshScalar = 2.0;
+
         if (Depthkit._geometryLookup == null) {
             Depthkit._geometryLookup = {};
         }
-
-        console.log(Object.keys(Depthkit._geometryLookup).length);
     }
 
     setMeshScalar(_scalar) {
@@ -47,7 +49,7 @@ export default class Depthkit extends THREE.Object3D {
             Depthkit._geometryLookup[vertsWide * vertsTall] = instanceGeometry;
         }
 
-        this.add(new THREE.Mesh(instanceGeometry, this.material));
+        this.add(new THREE.Mesh(instanceGeometry, this._material));
     }
 
     createGeometryBuffer(_vertsWide, _vertsTall) {
@@ -96,8 +98,8 @@ export default class Depthkit extends THREE.Object3D {
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
         let rgbdVert = glsl.file('./shaders/rgbd.vert');
 
-        var extrinsics = new THREE.Matrix4();
-        let ex = this.props.extrinsics;
+        const extrinsics = new THREE.Matrix4();
+        const ex = this.props.extrinsics;
         extrinsics.set(
             ex["e00"], ex["e10"], ex["e20"], ex["e30"],
             ex["e01"], ex["e11"], ex["e21"], ex["e31"],
@@ -105,11 +107,11 @@ export default class Depthkit extends THREE.Object3D {
             ex["e03"], ex["e13"], ex["e23"], ex["e33"]
         );
 
-        var extrinsicsInv = new THREE.Matrix4();
+        const extrinsicsInv = new THREE.Matrix4();
         extrinsicsInv.getInverse(extrinsics);
 
         //Material
-        this.material = new THREE.ShaderMaterial({
+        this._material = new THREE.ShaderMaterial({
             uniforms: {
                 "map": {
                     type: "t",
@@ -169,80 +171,125 @@ export default class Depthkit extends THREE.Object3D {
         });
 
         //Make the shader material double sided
-        this.material.side = THREE.DoubleSide;
+        this._material.side = THREE.DoubleSide;
     }
 
-    load(_props, _movie, _callback) {
+    createVideoElement(_src) {
+        const vid = document.createElement('video');
+        vid.id = 'depthkit-video';
+        vid.crossOrigin = 'anonymous';
+        vid.setAttribute('crossorigin', 'anonymous');
+        vid.setAttribute('webkit-playsinline', 'webkit-playsinline');
+        vid.setAttribute('playsinline', 'playsinline');
+        vid.src = _src;
+        vid.autoplay = false;
+        vid.loop = false;
+        vid.load();
 
-        //Video element
-        this.video = document.createElement('video');
-        this.video.id = 'depthkit-video';
-        this.video.crossOrigin = 'anonymous';
-        this.video.setAttribute('crossorigin', 'anonymous');
-        this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
-        this.video.setAttribute('playsinline', 'playsinline');
-        this.video.src = _movie;
-        this.video.autoplay = false;
-        this.video.loop = false;
-        this.video.load();
+        return vid;
+    }
 
-        //Create a video texture to be passed to the shader
-        this.videoTexture = new THREE.VideoTexture(this.video);
-        this.videoTexture.minFilter = THREE.NearestFilter;
-        this.videoTexture.magFilter = THREE.LinearFilter;
-        this.videoTexture.format = THREE.RGBFormat;
-        this.videoTexture.generateMipmaps = false;
+    createVideoTexture(_videoElement) {
+        const videoTex = new THREE.VideoTexture(this.video);
+        videoTex.minFilter = THREE.NearestFilter;
+        videoTex.magFilter = THREE.LinearFilter;
+        videoTex.format = THREE.RGBFormat;
+        videoTex.generateMipmaps = false;
 
-        //Manages loading of assets internally
-        this.manager = new THREE.LoadingManager();
+        return videoTex;
+    }
 
-        //JSON props once loaded
-        //this.props;
-        if (!this.meshScalar) {
-            this.meshScalar = 2.0; //default.
+    load(_props, _movieUrl, _onComplete, _onError) {
+
+        this.video = this.createVideoElement(_movieUrl);
+
+        this.videoTexture = this.createVideoTexture(this.video);
+
+        if (this.isJson(_props)) {
+            const jsonProps = JSON.parse(_props);
+            this.setProps(jsonProps);
+            this.createMesh();
+
+            if (_onComplete) {
+                _onComplete(this);
+            }
+        } else {
+            this.loadPropsFromFile(_props).then(props => {
+                this.setProps(props);
+                this.createMesh();
+
+                if (_onComplete) {
+                    _onComplete(this);
+                }
+            }).catch(err => {
+                if (_onError) {
+                    _onError(err);
+                } else {
+                    console.error(err);
+                }
+            })
+        }
+    }
+
+    createMesh() {
+        this.buildMaterial();
+        this.buildGeometry();
+        this.children[0].frustumCulled = false;
+        this.children[0].name = 'depthkit';
+    }
+
+    loadPropsFromFile(filePath) {
+        return new Promise((resolve, reject) => {
+            const jsonLoader = new THREE.FileLoader(this.manager);
+            jsonLoader.setResponseType('json');
+            jsonLoader.load(filePath, data => {
+                resolve(data);
+            }, null, err => {
+                reject(err);
+            });
+        });
+    }
+
+    isJson(item) {
+        item = typeof item !== "string"
+            ? JSON.stringify(item)
+            : item;
+
+        try {
+            item = JSON.parse(item);
+        } catch (e) {
+            return false;
         }
 
-        this.jsonLoader = new THREE.FileLoader(this.manager);
-        this.jsonLoader.setResponseType('json');
-        this.jsonLoader.load(_props, data => {
-            this.props = data;
-
-            if (this.props.textureWidth == undefined || this.props.textureHeight == undefined) {
-                this.props.textureWidth = this.props.depthImageSize.x;
-                this.props.textureHeight = this.props.depthImageSize.y * 2;
-            }
-            if (this.props.extrinsics == undefined) {
-                this.props.extrinsics = {
-                    e00: 1, e01: 0, e02: 0, e03: 0,
-                    e10: 0, e11: 1, e12: 0, e13: 0,
-                    e20: 0, e21: 0, e22: 1, e23: 0,
-                    e30: 0, e31: 0, e32: 0, e33: 1
-                };
-            }
-            if (this.props.crop == undefined) {
-                this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
-            }
-
-            this.buildMaterial();
-
-            this.buildGeometry();
-
-            //Make sure we don't hide the character - this helps the objects in webVR
-            this.children[0].frustumCulled = false;
-
-            this.children[0].name = 'depthkit';
-
-            //Return the object3D so it could be added to the scene
-            if (_callback) {
-                _callback(this);
-            }
-
+        if (typeof item === "object" && item !== null) {
+            return true;
         }
-        );
+
+        return false;
+    }
+
+    setProps(_props) {
+        this.props = _props;
+
+        if (this.props.textureWidth == undefined || this.props.textureHeight == undefined) {
+            this.props.textureWidth = this.props.depthImageSize.x;
+            this.props.textureHeight = this.props.depthImageSize.y * 2;
+        }
+        if (this.props.extrinsics == undefined) {
+            this.props.extrinsics = {
+                e00: 1, e01: 0, e02: 0, e03: 0,
+                e10: 0, e11: 1, e12: 0, e13: 0,
+                e20: 0, e21: 0, e22: 1, e23: 0,
+                e30: 0, e31: 0, e32: 0, e33: 1
+            };
+        }
+        if (this.props.crop == undefined) {
+            this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
+        }
     }
 
     setOpacity(opacity) {
-        this.material.uniforms.opacity.value = opacity;
+        this._material.uniforms.opacity.value = opacity;
     }
 
     /*
@@ -274,7 +321,7 @@ export default class Depthkit extends THREE.Object3D {
     }
 
     update(time) {
-        this.material.uniforms.time.value = time;
+        this._material.uniforms.time.value = time;
     }
 
     dispose() {
