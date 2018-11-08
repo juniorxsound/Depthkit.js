@@ -17,47 +17,77 @@
 // bundling of GLSL code
 const glsl = require('glslify');
 
-export default class Depthkit {
+export default class Depthkit extends THREE.Object3D {
 
-    //Reduction factor of the mesh.
-    setMeshScalar(_scalar)
-    {
+    constructor() {
+        super();
+
+        if (Depthkit._geometryLookup == null) {
+            Depthkit._geometryLookup = {};
+        }
+
+        console.log(Object.keys(Depthkit._geometryLookup).length);
+    }
+
+    setMeshScalar(_scalar) {
         this.meshScalar = _scalar;
     }
 
     buildGeometry() {
 
-        var vertsWide = (this.props.textureWidth  / this.meshScalar) + 1;
-        var vertsTall = (this.props.textureHeight / this.meshScalar) + 1;
+        const vertsWide = (this.props.textureWidth / this.meshScalar) + 1;
+        const vertsTall = (this.props.textureHeight / this.meshScalar) + 1;
 
-        var vertexStep = new THREE.Vector2( this.meshScalar / this.props.textureWidth, this.meshScalar / this.props.textureHeight)
-        this.geometry = new THREE.Geometry();
+        let instanceGeometry;
 
-        for (let y = 0; y < vertsTall; y++) {
-            for (let x = 0; x < vertsWide; x++) {
-                this.geometry.vertices.push(new THREE.Vector3(x * vertexStep.x, y * vertexStep.y, 0));
+        if (this.geometryBufferExistsInLookup(vertsWide * vertsTall)) {
+            instanceGeometry = Depthkit._geometryLookup[vertsWide * vertsTall];
+        } else {
+            instanceGeometry = this.createGeometryBuffer(vertsWide, vertsTall);
+            Depthkit._geometryLookup[vertsWide * vertsTall] = instanceGeometry;
+        }
+
+        this.add(new THREE.Mesh(instanceGeometry, this.material));
+    }
+
+    createGeometryBuffer(_vertsWide, _vertsTall) {
+        const vertexStep = new THREE.Vector2(this.meshScalar / this.props.textureWidth, this.meshScalar / this.props.textureHeight)
+        let _geometry = new THREE.Geometry();
+
+        for (let y = 0; y < _vertsTall; y++) {
+            for (let x = 0; x < _vertsWide; x++) {
+                _geometry.vertices.push(new THREE.Vector3(x * vertexStep.x, y * vertexStep.y, 0));
             }
         }
 
-        for (let y = 0; y < vertsTall - 1; y++) {
-            for (let x = 0; x < vertsWide - 1; x++) {
-                this.geometry.faces.push(
+        for (let y = 0; y < _vertsTall - 1; y++) {
+            for (let x = 0; x < _vertsWide - 1; x++) {
+                _geometry.faces.push(
                     new THREE.Face3(
-                        x + y * vertsWide,
-                        x + (y + 1) * vertsWide,
-                        (x + 1) + y * vertsWide
+                        x + y * _vertsWide,
+                        x + (y + 1) * _vertsWide,
+                        (x + 1) + y * _vertsWide
                     ));
 
-                this.geometry.faces.push(
+                _geometry.faces.push(
                     new THREE.Face3(
-                        x + 1 + y * vertsWide,
-                        x + (y + 1) * vertsWide,
-                        (x + 1) + (y + 1) * vertsWide
+                        x + 1 + y * _vertsWide,
+                        x + (y + 1) * _vertsWide,
+                        (x + 1) + (y + 1) * _vertsWide
                     ));
             }
         }
 
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        return _geometry;
+    }
+
+    geometryBufferExistsInLookup(meshWxH) {
+        for (let lookupKey in Object.keys(Depthkit._geometryLookup)) {
+            if (meshWxH === lookupKey) {
+                return true;
+            }
+        }
+        return false;
     }
 
     buildMaterial() {
@@ -75,7 +105,7 @@ export default class Depthkit {
             ex["e03"], ex["e13"], ex["e23"], ex["e33"]
         );
 
-        var extrinsicsInv =  new THREE.Matrix4();
+        var extrinsicsInv = new THREE.Matrix4();
         extrinsicsInv.getInverse(extrinsics);
 
         //Material
@@ -129,7 +159,7 @@ export default class Depthkit {
                 },
                 "opacity": {
                     type: "f",
-                    value : 1.0
+                    value: 1.0
                 }
             },
 
@@ -168,50 +198,46 @@ export default class Depthkit {
 
         //JSON props once loaded
         //this.props;
-        if(!this.meshScalar)
-        {
+        if (!this.meshScalar) {
             this.meshScalar = 2.0; //default.
         }
 
-        //Make sure to read the config file as json (i.e JSON.parse)
         this.jsonLoader = new THREE.FileLoader(this.manager);
         this.jsonLoader.setResponseType('json');
-        this.jsonLoader.load(_props,
-            // Function when json is loaded
-            data => {
-                this.props = data;
+        this.jsonLoader.load(_props, data => {
+            this.props = data;
 
-                if (this.props.textureWidth == undefined || this.props.textureHeight == undefined) {
-                    this.props.textureWidth = this.props.depthImageSize.x;
-                    this.props.textureHeight = this.props.depthImageSize.y * 2;
-                }
-                if (this.props.extrinsics == undefined) {
-                    this.props.extrinsics = {
-                        e00: 1, e01: 0, e02: 0, e03: 0,
-                        e10: 0, e11: 1, e12: 0, e13: 0,
-                        e20: 0, e21: 0, e22: 1, e23: 0,
-                        e30: 0, e31: 0, e32: 0, e33: 1
-                    };
-                }
-                if (this.props.crop == undefined) {
-                    this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
-                }
-
-                this.buildMaterial();
-
-                this.buildGeometry();
-
-                //Make sure we don't hide the character - this helps the objects in webVR
-                this.mesh.frustumCulled = false;
-
-                this.mesh.name = 'depthkit';
-
-                //Return the object3D so it could be added to the scene
-                if(_callback){
-                    _callback(this.mesh);
-                }
-
+            if (this.props.textureWidth == undefined || this.props.textureHeight == undefined) {
+                this.props.textureWidth = this.props.depthImageSize.x;
+                this.props.textureHeight = this.props.depthImageSize.y * 2;
             }
+            if (this.props.extrinsics == undefined) {
+                this.props.extrinsics = {
+                    e00: 1, e01: 0, e02: 0, e03: 0,
+                    e10: 0, e11: 1, e12: 0, e13: 0,
+                    e20: 0, e21: 0, e22: 1, e23: 0,
+                    e30: 0, e31: 0, e32: 0, e33: 1
+                };
+            }
+            if (this.props.crop == undefined) {
+                this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
+            }
+
+            this.buildMaterial();
+
+            this.buildGeometry();
+
+            //Make sure we don't hide the character - this helps the objects in webVR
+            this.children[0].frustumCulled = false;
+
+            this.children[0].name = 'depthkit';
+
+            //Return the object3D so it could be added to the scene
+            if (_callback) {
+                _callback(this);
+            }
+
+        }
         );
     }
 
@@ -252,18 +278,18 @@ export default class Depthkit {
     }
 
     dispose() {
-      //Remove the mesh from the scene
-      try {
-        this.mesh.parent.remove(this.mesh);
-      } catch (e) {
-        console.warn(e);
-      } finally {
-        this.mesh.traverse(child=>{
-          if(child.geometry !== undefined){
-            child.geometry.dispose();
-            child.material.dispose();
-          }
-        });
-      }
+        //Remove the mesh from the scene
+        try {
+            this.mesh.parent.remove(this.mesh);
+        } catch (e) {
+            console.warn(e);
+        } finally {
+            this.mesh.traverse(child => {
+                if (child.geometry !== undefined) {
+                    child.geometry.dispose();
+                    child.material.dispose();
+                }
+            });
+        }
     }
 }

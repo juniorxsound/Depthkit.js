@@ -96,8 +96,9 @@
 					character = dkCharacter;
 
 					//Position and rotation adjustments
-					character.rotation.set( Math.PI - 0.25, 0, Math.PI / -2.0 );
-					character.position.set( -0.25, 1.35, 1.85 );
+					dkCharacter.rotation.set( Math.PI - 0.25, 0, Math.PI / -2.0 );
+					// dkCharacter.rotation.y = Math.PI;
+					dkCharacter.position.set( -0.25, 1.35, 1.85 );
 
 					// Depthkit video playback control
 					depthkit.video.muted = "muted"; // Necessary for auto-play in chrome now

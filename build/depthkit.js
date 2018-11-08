@@ -21,6 +21,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 //Depthkit.js plugin for Three.js
 
 /**
@@ -40,16 +44,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // bundling of GLSL code
 var glsl = require('glslify');
 
-var Depthkit = function () {
+var Depthkit = function (_THREE$Object3D) {
+    _inherits(Depthkit, _THREE$Object3D);
+
     function Depthkit() {
         _classCallCheck(this, Depthkit);
+
+        var _this = _possibleConstructorReturn(this, (Depthkit.__proto__ || Object.getPrototypeOf(Depthkit)).call(this));
+
+        if (Depthkit._geometryLookup == null) {
+            Depthkit._geometryLookup = {};
+        }
+
+        console.log(Object.keys(Depthkit._geometryLookup).length);
+        return _this;
     }
 
     _createClass(Depthkit, [{
         key: 'setMeshScalar',
-
-
-        //Reduction factor of the mesh.
         value: function setMeshScalar(_scalar) {
             this.meshScalar = _scalar;
         }
@@ -60,24 +72,48 @@ var Depthkit = function () {
             var vertsWide = this.props.textureWidth / this.meshScalar + 1;
             var vertsTall = this.props.textureHeight / this.meshScalar + 1;
 
+            var instanceGeometry = void 0;
+
+            if (this.geometryBufferExistsInLookup(vertsWide * vertsTall)) {
+                instanceGeometry = Depthkit._geometryLookup[vertsWide * vertsTall];
+            } else {
+                instanceGeometry = this.createGeometryBuffer(vertsWide, vertsTall);
+                Depthkit._geometryLookup[vertsWide * vertsTall] = instanceGeometry;
+            }
+
+            this.add(new THREE.Mesh(instanceGeometry, this.material));
+        }
+    }, {
+        key: 'createGeometryBuffer',
+        value: function createGeometryBuffer(_vertsWide, _vertsTall) {
             var vertexStep = new THREE.Vector2(this.meshScalar / this.props.textureWidth, this.meshScalar / this.props.textureHeight);
-            this.geometry = new THREE.Geometry();
+            var _geometry = new THREE.Geometry();
 
-            for (var y = 0; y < vertsTall; y++) {
-                for (var x = 0; x < vertsWide; x++) {
-                    this.geometry.vertices.push(new THREE.Vector3(x * vertexStep.x, y * vertexStep.y, 0));
+            for (var y = 0; y < _vertsTall; y++) {
+                for (var x = 0; x < _vertsWide; x++) {
+                    _geometry.vertices.push(new THREE.Vector3(x * vertexStep.x, y * vertexStep.y, 0));
                 }
             }
 
-            for (var _y = 0; _y < vertsTall - 1; _y++) {
-                for (var _x = 0; _x < vertsWide - 1; _x++) {
-                    this.geometry.faces.push(new THREE.Face3(_x + _y * vertsWide, _x + (_y + 1) * vertsWide, _x + 1 + _y * vertsWide));
+            for (var _y = 0; _y < _vertsTall - 1; _y++) {
+                for (var _x = 0; _x < _vertsWide - 1; _x++) {
+                    _geometry.faces.push(new THREE.Face3(_x + _y * _vertsWide, _x + (_y + 1) * _vertsWide, _x + 1 + _y * _vertsWide));
 
-                    this.geometry.faces.push(new THREE.Face3(_x + 1 + _y * vertsWide, _x + (_y + 1) * vertsWide, _x + 1 + (_y + 1) * vertsWide));
+                    _geometry.faces.push(new THREE.Face3(_x + 1 + _y * _vertsWide, _x + (_y + 1) * _vertsWide, _x + 1 + (_y + 1) * _vertsWide));
                 }
             }
 
-            this.mesh = new THREE.Mesh(this.geometry, this.material);
+            return _geometry;
+        }
+    }, {
+        key: 'geometryBufferExistsInLookup',
+        value: function geometryBufferExistsInLookup(meshWxH) {
+            for (var lookupKey in Object.keys(Depthkit._geometryLookup)) {
+                if (meshWxH === lookupKey) {
+                    return true;
+                }
+            }
+            return false;
         }
     }, {
         key: 'buildMaterial',
@@ -160,7 +196,7 @@ var Depthkit = function () {
     }, {
         key: 'load',
         value: function load(_props, _movie, _callback) {
-            var _this = this;
+            var _this2 = this;
 
             //Video element
             this.video = document.createElement('video');
@@ -190,42 +226,39 @@ var Depthkit = function () {
                 this.meshScalar = 2.0; //default.
             }
 
-            //Make sure to read the config file as json (i.e JSON.parse)
             this.jsonLoader = new THREE.FileLoader(this.manager);
             this.jsonLoader.setResponseType('json');
-            this.jsonLoader.load(_props,
-            // Function when json is loaded
-            function (data) {
-                _this.props = data;
+            this.jsonLoader.load(_props, function (data) {
+                _this2.props = data;
 
-                if (_this.props.textureWidth == undefined || _this.props.textureHeight == undefined) {
-                    _this.props.textureWidth = _this.props.depthImageSize.x;
-                    _this.props.textureHeight = _this.props.depthImageSize.y * 2;
+                if (_this2.props.textureWidth == undefined || _this2.props.textureHeight == undefined) {
+                    _this2.props.textureWidth = _this2.props.depthImageSize.x;
+                    _this2.props.textureHeight = _this2.props.depthImageSize.y * 2;
                 }
-                if (_this.props.extrinsics == undefined) {
-                    _this.props.extrinsics = {
+                if (_this2.props.extrinsics == undefined) {
+                    _this2.props.extrinsics = {
                         e00: 1, e01: 0, e02: 0, e03: 0,
                         e10: 0, e11: 1, e12: 0, e13: 0,
                         e20: 0, e21: 0, e22: 1, e23: 0,
                         e30: 0, e31: 0, e32: 0, e33: 1
                     };
                 }
-                if (_this.props.crop == undefined) {
-                    _this.props.crop = { x: 0, y: 0, z: 1, w: 1 };
+                if (_this2.props.crop == undefined) {
+                    _this2.props.crop = { x: 0, y: 0, z: 1, w: 1 };
                 }
 
-                _this.buildMaterial();
+                _this2.buildMaterial();
 
-                _this.buildGeometry();
+                _this2.buildGeometry();
 
                 //Make sure we don't hide the character - this helps the objects in webVR
-                _this.mesh.frustumCulled = false;
+                _this2.children[0].frustumCulled = false;
 
-                _this.mesh.name = 'depthkit';
+                _this2.children[0].name = 'depthkit';
 
                 //Return the object3D so it could be added to the scene
                 if (_callback) {
-                    _callback(_this.mesh);
+                    _callback(_this2);
                 }
             });
         }
@@ -294,7 +327,7 @@ var Depthkit = function () {
     }]);
 
     return Depthkit;
-}();
+}(THREE.Object3D);
 
 exports.default = Depthkit;
 
