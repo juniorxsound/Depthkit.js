@@ -3,16 +3,13 @@
 /**
  * Originally written by
  * @author mrdoob / http://mrdoob.com
- * @modified by obviousjim / http://specular.cc
+ * @modified by obviousjim @ Scatter / http://scatter.nyc
  */
 
 /* Made into a plugin after the completion of the Tzina project by
  *  @author juniorxsound / http://orfleisher.com
  *  @modified by avnerus / http://avner.js.org
  */
-
-//Three.js - for easy debugging and testing, should be excluded from the build
-// import * as THREE from 'three'
 
 // bundling of GLSL code
 const glsl = require('glslify');
@@ -24,6 +21,17 @@ export default class Depthkit extends THREE.Object3D {
 
         this.manager = new THREE.LoadingManager();
 
+        //video object created in the constructor so user may attach events
+        this.video = document.createElement('video');
+        this.video.id = 'depthkit-video';
+        this.video.crossOrigin = 'anonymous';
+        this.video.setAttribute('crossorigin', 'anonymous');
+        this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
+        this.video.setAttribute('playsinline', 'playsinline');
+        this.video.autoplay = false;
+        this.video.loop = false;
+
+        ///default value
         this.meshScalar = 2.0;
 
         if (Depthkit._geometryLookup == null) {
@@ -174,22 +182,12 @@ export default class Depthkit extends THREE.Object3D {
         this._material.side = THREE.DoubleSide;
     }
 
-    createVideoElement(_src) {
-        const vid = document.createElement('video');
-        vid.id = 'depthkit-video';
-        vid.crossOrigin = 'anonymous';
-        vid.setAttribute('crossorigin', 'anonymous');
-        vid.setAttribute('webkit-playsinline', 'webkit-playsinline');
-        vid.setAttribute('playsinline', 'playsinline');
-        vid.src = _src;
-        vid.autoplay = false;
-        vid.loop = false;
-        vid.load();
-
-        return vid;
+    loadVideo(_src) {
+        this.video.src = _src;
+        this.video.load();
     }
 
-    createVideoTexture(_videoElement) {
+    createVideoTexture() {
         const videoTex = new THREE.VideoTexture(this.video);
         videoTex.minFilter = THREE.NearestFilter;
         videoTex.magFilter = THREE.LinearFilter;
@@ -201,9 +199,9 @@ export default class Depthkit extends THREE.Object3D {
 
     load(_props, _movieUrl, _onComplete, _onError) {
 
-        this.video = this.createVideoElement(_movieUrl);
+        this.loadVideo(_movieUrl);
 
-        this.videoTexture = this.createVideoTexture(this.video);
+        this.videoTexture = this.createVideoTexture();
 
         if (this.isJson(_props)) {
             const jsonProps = JSON.parse(_props);
