@@ -32,16 +32,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * Originally written by
  * @author mrdoob / http://mrdoob.com
- * @modified by obviousjim / http://specular.cc
+ * @modified by obviousjim @ Scatter / http://scatter.nyc
  */
 
 /* Made into a plugin after the completion of the Tzina project by
  *  @author juniorxsound / http://orfleisher.com
  *  @modified by avnerus / http://avner.js.org
  */
-
-//Three.js - for easy debugging and testing, should be excluded from the build
-// import * as THREE from 'three'
 
 // bundling of GLSL code
 var glsl = require('glslify');
@@ -56,6 +53,17 @@ var Depthkit = function (_THREE$Object3D) {
 
         _this.manager = new THREE.LoadingManager();
 
+        //video object created in the constructor so user may attach events
+        _this.video = document.createElement('video');
+        _this.video.id = 'depthkit-video';
+        _this.video.crossOrigin = 'anonymous';
+        _this.video.setAttribute('crossorigin', 'anonymous');
+        _this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
+        _this.video.setAttribute('playsinline', 'playsinline');
+        _this.video.autoplay = false;
+        _this.video.loop = false;
+
+        ///default value
         _this.meshScalar = 2.0;
 
         if (Depthkit._geometryLookup == null) {
@@ -198,24 +206,14 @@ var Depthkit = function (_THREE$Object3D) {
             this._material.side = THREE.DoubleSide;
         }
     }, {
-        key: 'createVideoElement',
-        value: function createVideoElement(_src) {
-            var vid = document.createElement('video');
-            vid.id = 'depthkit-video';
-            vid.crossOrigin = 'anonymous';
-            vid.setAttribute('crossorigin', 'anonymous');
-            vid.setAttribute('webkit-playsinline', 'webkit-playsinline');
-            vid.setAttribute('playsinline', 'playsinline');
-            vid.src = _src;
-            vid.autoplay = false;
-            vid.loop = false;
-            vid.load();
-
-            return vid;
+        key: 'loadVideo',
+        value: function loadVideo(_src) {
+            this.video.src = _src;
+            this.video.load();
         }
     }, {
         key: 'createVideoTexture',
-        value: function createVideoTexture(_videoElement) {
+        value: function createVideoTexture() {
             var videoTex = new THREE.VideoTexture(this.video);
             videoTex.minFilter = THREE.NearestFilter;
             videoTex.magFilter = THREE.LinearFilter;
@@ -229,9 +227,9 @@ var Depthkit = function (_THREE$Object3D) {
         value: function load(_props, _movieUrl, _onComplete, _onError) {
             var _this2 = this;
 
-            this.video = this.createVideoElement(_movieUrl);
+            this.loadVideo(_movieUrl);
 
-            this.videoTexture = this.createVideoTexture(this.video);
+            this.videoTexture = this.createVideoTexture();
 
             if (this.isJson(_props)) {
                 var jsonProps = JSON.parse(_props);
