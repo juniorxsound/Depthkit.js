@@ -76,6 +76,7 @@ export default class Depthkit extends THREE.Object3D {
         if( this._instanceMesh == null)
         {
             this._instanceMesh = new THREE.Mesh(instanceGeometry, this._material);
+            this.add(this._instanceMesh);
         }
         else
         {
