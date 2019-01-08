@@ -44,10 +44,13 @@
 	<!--Depthkit.js-->
 	<script src="../build/depthkit.js"></script>
 
-	<div id="info">
-		<a href="http://depthkit.tv" target="_blank" rel="noopener">Depthkit.js</a> - Simple example using Three.js<br/> Written
-		by <a href="http://orfleisher.com">juniorxsound</a>
-	</div>
+    <div id="info">
+        <a href="http://depthkit.tv" target="_blank" rel="noopener">Depthkit.js</a> - Simple example using Three.js<br /> Written
+        by <a href="http://orfleisher.com">juniorxsound</a>
+        <br />
+        <br />
+        Press 1, 2, 3 to change meshScalar. q/w to rotate around X-axis, a/s to rotate around Y-axis, z/x to rotate around Z-axis
+    </div>
 
 	<script>
 
@@ -60,6 +63,8 @@
 		var depthkit;
 		//Depthkit character
 		var character;
+		var rotationStep = Math.PI / 9.0;
+
 
 		init();
 
@@ -97,7 +102,7 @@
 					//Position and rotation adjustments
 					dkCharacter.rotation.set( Math.PI - 0.25, 0, Math.PI / -2.0 );
 					// dkCharacter.rotation.y = Math.PI;
-					dkCharacter.position.set( -0.25, 1.35, 1.85 );
+					dkCharacter.position.set( -0.25, 0.92, 0 );
 
 					// Depthkit video playback control
 					depthkit.video.muted = "muted"; // Necessary for auto-play in chrome now
@@ -111,6 +116,7 @@
 
 
 			window.addEventListener( 'resize', onWindowResize, false );
+			window.addEventListener('keydown', onKeyDown, false);
 
 			render();
 
@@ -132,6 +138,46 @@
 
 		}
 
+		function onKeyDown(event) {
+		    switch (event.keyCode) {
+		        case 49: // key '1'
+		            depthkit.setMeshScalar(1);
+		            break;
+		        case 50: // key '2'
+		            depthkit.setMeshScalar(2);
+		            break;
+		        case 51: // key '3'
+		            depthkit.setMeshScalar(3);
+		            break;
+		        case 81: // key 'q'                    
+		            character.rotation.x += rotationStep;
+		            break;
+		        case 87: // key 'w'
+		            character.rotation.x -= rotationStep;
+		            break;
+		        case 65: // key 'a'                    
+		            character.rotation.y += rotationStep;
+		            break;
+		        case 83: // key 's'
+		            character.rotation.y -= rotationStep;
+		            break;
+		        case 90: // key 'z'                    
+		            character.rotation.z += rotationStep;
+		            break;
+		        case 88: // key 'x'
+		            character.rotation.z -= rotationStep;
+		            break;
+
+		        default:
+		            scene.updateMatrixWorld();
+
+		            var v = new THREE.Vector3()
+		            v.setFromMatrixPosition(character.matrixWorld);
+		            console.log(v);
+
+		            return;
+		    }
+		}
 	</script>
 
 </body>

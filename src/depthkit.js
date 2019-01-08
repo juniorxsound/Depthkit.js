@@ -34,13 +34,29 @@ export default class Depthkit extends THREE.Object3D {
         ///default value
         this.meshScalar = 2.0;
 
+        Depthkit._instanceMesh = null;
         if (Depthkit._geometryLookup == null) {
             Depthkit._geometryLookup = {};
         }
     }
 
     setMeshScalar(_scalar) {
-        this.meshScalar = _scalar;
+        //
+        // _scalar - valid values 0, 1, 2, 3 
+        // 
+        if( _scalar > 3 )
+            _scalar = 3;
+        if( _scalar < 0 )
+            _scalar = 0;
+        // meshScalar values are 1, 2 ,4, 8 
+        // This ensures that meshScalar is never set to 0 
+        // and that vertex steps (computed in buildGeometry) are always pixel aligned.
+        var newScalar = Math.pow(2, _scalar);
+        if( this.meshScalar != newScalar )
+        {
+            this.meshScalar = newScalar;
+            this.buildGeometry();
+        }
     }
 
     buildGeometry() {
@@ -57,7 +73,26 @@ export default class Depthkit extends THREE.Object3D {
             Depthkit._geometryLookup[vertsWide * vertsTall] = instanceGeometry;
         }
 
-        this.add(new THREE.Mesh(instanceGeometry, this._material));
+        if( this._instanceMesh == null)
+        {
+            this._instanceMesh = new THREE.Mesh(instanceGeometry, this._material);
+            this._instanceMesh.frustumCulled = false
+            
+            // create pivot and parent the mesh to the pivot
+            //
+            //pivot creation 
+            //
+            var pivot = new THREE.Object3D();
+            pivot.frustumCulled = false;
+            pivot.position.z = -((this.props.farClip - this.props.nearClip)/2.0) - this.props.nearClip;
+
+            this.add(pivot);
+            pivot.add(this._instanceMesh);
+        }
+        else
+        {
+            this._instanceMesh.geometry = instanceGeometry;
+        }
     }
 
     createGeometryBuffer(_vertsWide, _vertsTall) {
