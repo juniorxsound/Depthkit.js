@@ -49,7 +49,7 @@
         by <a href="http://orfleisher.com">juniorxsound</a>
         <br />
         <br />
-        Press 0, 1, 2, 3 to change meshScalar. q/w to rotate around X-axis, a/s to rotate around Y-axis, z/x to rotate around Z-axis
+        Press 1, 2, 3 to change meshScalar. q/w to rotate around X-axis, a/s to rotate around Y-axis, z/x to rotate around Z-axis
     </div>
 
 	<script>
@@ -102,7 +102,7 @@
 					//Position and rotation adjustments
 					dkCharacter.rotation.set( Math.PI - 0.25, 0, Math.PI / -2.0 );
 					// dkCharacter.rotation.y = Math.PI;
-					dkCharacter.position.set( -0.25, 1.35, 0 );
+					dkCharacter.position.set( -0.25, 0.92, 0 );
 
 					// Depthkit video playback control
 					depthkit.video.muted = "muted"; // Necessary for auto-play in chrome now
@@ -140,20 +140,13 @@
 
 		function onKeyDown(event) {
 		    switch (event.keyCode) {
-
-		        case 48: // key '0'
-		            depthkit.setMeshScalar(0);
-		            break;
-
 		        case 49: // key '1'
 		            depthkit.setMeshScalar(1);
 		            break;
-
 		        case 50: // key '2'
 		            depthkit.setMeshScalar(2);
 		            break;
-
-		        case 51:
+		        case 51: // key '3'
 		            depthkit.setMeshScalar(3);
 		            break;
 		        case 81: // key 'q'                    
