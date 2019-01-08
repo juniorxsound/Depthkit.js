@@ -84,7 +84,6 @@ export default class Depthkit extends THREE.Object3D {
             //
             var pivot = new THREE.Object3D();
             pivot.frustumCulled = false;
-            pivot.add(this._instanceMesh);
             pivot.position.z = ((this.props.farClip - this.props.nearClip)/2.0) - this.props.nearClip;
 
             this.add(pivot);
