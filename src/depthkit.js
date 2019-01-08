@@ -76,24 +76,17 @@ export default class Depthkit extends THREE.Object3D {
         if( this._instanceMesh == null)
         {
             this._instanceMesh = new THREE.Mesh(instanceGeometry, this._material);
-            //this.add(this._instanceMesh);
+            this._instanceMesh.frustumCulled = false
             
             // create pivot and parent the mesh to the pivot
             //
             //pivot creation 
             //
             var pivot = new THREE.Object3D();
+            pivot.frustumCulled = false;
             pivot.add(this._instanceMesh);
-            pivot.position.z = -((this.props.farClip - this.props.nearClip)/2.0) + this.props.nearClip;
-            //pivot.position.x = ((this.props.depthImageSize.x * 0.5) - this.props.depthPrincipalPoint.x) * pivot.position.z / this.props.depthFocalLength.x;
-            //pivot.position.y = ((this.props.depthImageSize.y * 0.5) - this.props.depthPrincipalPoint.y) * pivot.position.z / this.props.depthFocalLength.y;
+            pivot.position.z = ((this.props.farClip - this.props.nearClip)/2.0) - this.props.nearClip;
 
-            var bound = new THREE.AxesHelper();
-            //xbound.position.set(pivot.position);
-            pivot.add(bound);
-//            md.boundsSize = new Vector3(md.depthImageSize.x * md.farClip / md.depthFocalLength.x,
-//                                               md.depthImageSize.y * md.farClip / md.depthFocalLength.y,
-//                                               md.farClip - md.nearClip);
             this.add(pivot);
             pivot.add(this._instanceMesh);
         }
