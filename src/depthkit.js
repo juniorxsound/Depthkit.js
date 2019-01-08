@@ -51,7 +51,7 @@ export default class Depthkit extends THREE.Object3D {
         // meshScalar values are 1, 2 ,4, 8 
         // This ensures that meshScalar is never set to 0 
         // and that vertex steps (computed in buildGeometry) are always pixel aligned.
-        var newScalar = Math.pow(2, _scalar);
+        var newScalar = Math.pow(2, Math.floor(_scalar));
         if( this.meshScalar != newScalar )
         {
             this.meshScalar = newScalar;
