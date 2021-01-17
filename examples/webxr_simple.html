@@ -74,7 +74,12 @@
 
 			//Depthkit methods
 			character.depthkit.setLoop(true);
-			character.depthkit.play();
+			
+			// Click page to play
+			document.body.addEventListener('click', () => {
+				character.depthkit.play();
+			});
+
 
 			//Add the character to the scene
 			scene.add(character);

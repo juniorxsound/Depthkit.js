@@ -23,7 +23,7 @@ const VERTS_TALL = 256;
 
 export default class DepthKit {
 
-    constructor(_type = 'mesh', _props, _movie) {
+    constructor(_type = 'mesh', _props, _movie, _poster) {
 
         //Load the shaders
         let rgbdFrag = glsl.file('./shaders/rgbd.frag');
@@ -39,10 +39,12 @@ export default class DepthKit {
         this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
         this.video.setAttribute('playsinline', 'playsinline');
         this.video.src = _movie;
+        this.video.poster = _poster;
 
         //Don't autostart don't loop
-        this.video.autoplay = false;
+        this.video.autoplay = true;
         this.video.loop = false;
+        this.video.muted = true;
         this.video.load();
 
         //Create a video texture to be passed to the shader

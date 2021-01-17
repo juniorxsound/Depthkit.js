@@ -42,7 +42,8 @@
     <script src="../build/depthkit.js"></script>
 
     <div id="info">
-        <a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple webVR example using Three.js<br/>        Written by <a href="http://orfleisher.com">juniorxsound</a>
+        <a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple webVR example using Three.js<br/>        Written by <a href="http://orfleisher.com">juniorxsound</a><br/><br/>
+		Click page to start playback
     </div>
 
     <script>
@@ -111,8 +112,10 @@
             //Make it loop once activated
             character.depthkit.setLoop(true);
 
-            //Hit play
-            character.depthkit.play();
+            // Click page to play
+			document.body.addEventListener('click', () => {
+				character.depthkit.play();
+			});
 
             //Add the character to the scene
             scene.add(character);

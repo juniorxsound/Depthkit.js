@@ -48,10 +48,12 @@ var DepthKit = function () {
     function DepthKit() {
         var _type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'mesh';
 
+        var _props = arguments[1];
+
         var _this = this;
 
-        var _props = arguments[1];
         var _movie = arguments[2];
+        var _poster = arguments[3];
 
         _classCallCheck(this, DepthKit);
 
@@ -69,10 +71,12 @@ var DepthKit = function () {
         this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
         this.video.setAttribute('playsinline', 'playsinline');
         this.video.src = _movie;
+        this.video.poster = _poster;
 
         //Don't autostart don't loop
-        this.video.autoplay = false;
+        this.video.autoplay = true;
         this.video.loop = false;
+        this.video.muted = true;
         this.video.load();
 
         //Create a video texture to be passed to the shader
