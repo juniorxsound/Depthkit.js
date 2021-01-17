@@ -41,13 +41,13 @@ Calling ```new DepthKit()``` returns a three.js Object3D which has all the regul
 - Dispose and clean the character instance
 
 ## Examples:
-[Simple DepthKit example](https://juniorxsound.github.io/DepthKit.js/examples/simple.html)
+[Simple DepthKit example](https://juniorxsound.github.io/Depthkit.js/examples/simple.html)
 
-[Mouse hover example](https://juniorxsound.github.io/DepthKit.js/examples/raycast.html)
+[Mouse hover example](https://juniorxsound.github.io/Depthkit.js/examples/raycast.html)
 
-[Simple webVR example](https://juniorxsound.github.io/DepthKit.js/examples/webvr_simple.html)
+[Simple webVR example](https://juniorxsound.github.io/Depthkit.js/examples/webvr_simple.html)
 
-[Raycasting webVR example](https://juniorxsound.github.io/DepthKit.js/examples/webvr_raycast.html)
+[Raycasting webVR example](https://juniorxsound.github.io/Depthkit.js/examples/webvr_raycast.html)
 
 ## How to contribute:
 1. Fork/Clone/Download
