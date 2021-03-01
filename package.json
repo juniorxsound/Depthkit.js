@@ -33,7 +33,7 @@
     "watchify": "^3.11.0"
   },
   "dependencies": {
-    "three": "^0.87.1",
+    "three": "^0.125.0",
     "webvr-polyfill": "^0.9.36"
   },
   "browserify": {
