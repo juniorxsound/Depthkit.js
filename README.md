@@ -56,6 +56,20 @@ Calling ```new DepthKit()``` returns an object that has the neccesery methods to
 ## Credits
 The Depthkit.js plugin was developed for [Tzina: A Symphony of Longing](https://tzina.space) and ported with permission from Scatter's Unity Depthkit Plugin.
 
+## Workaround for most recent Depthkit (2021)
+Recently, Depthkit has been updated to support multiple perspectives (Depthkit Studio), slightly altering the structure of assets exported out of Depthkit, and breaking compatibility with Depthkit.js.
+
+Single-perspective Depthkit assets from Depthkit Core and Depthkit Cinema can be modified to the older structure to make them compatible with Depthkit.js using the following steps:
+
+* Locate the metadata file of your Depthkit asset, make a backup of it, and open it in a text/code editor. Editors like SublimeText and Atom can make it easier to read the metadata’s JSON format.
+* Locate the ```"numAngles"``` and ```"perspectives"``` objects.
+    * Delete the entire ```"numAngles": 1```, line.
+    * Within the ```"perspectives"``` array in brackets ```[]```, you’ll find an unnamed object in curly braces ```{}```. 
+    * Delete the ```"perspectives" [ {``` preceding the contents of the object, and the ```} ]``` following it. 
+    * The remaining contents, beginning with ```"clipEpsilon"``` and ```"crop"``` objects, and ending with the ```"farClip"``` and ```"nearClip"``` and their values, are now elevated to the same level as the other objects in the metadata.
+     * Make sure that each object is followed by a comma except for the final one.
+* Save this modified version.
+
 ## Thanks
 
 Originally written by [@mrdoob](https://github.com/mrdoob) and [@obviousjim](https://github.com/obviousjim) ported and modified by [@juniorxsound](https://github.com/juniorxsound) and [@avnerus](https://github.com/Avnerus). Special thank you to [Shirin Anlen](https://www.shirin.works/) and all the Tzina crew, [@ZEEEVE](https://github.com/zivschneider), [@jhclaura](https://github.com/jhclaura)
