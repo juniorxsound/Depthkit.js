@@ -56,7 +56,7 @@ Calling ```new DepthKit()``` returns an object that has the neccesery methods to
 ## Credits
 The Depthkit.js plugin was developed for [Tzina: A Symphony of Longing](https://tzina.space) and ported with permission from Scatter's Unity Depthkit Plugin.
 
-## Workaround for most recent Depthkit (2021)
+## Workaround for metadata files from Depthkit 0.5.4 and later
 Recently, Depthkit has been updated to support multiple perspectives (Depthkit Studio), slightly altering the structure of assets exported out of Depthkit, and breaking compatibility with Depthkit.js.
 
 Single-perspective Depthkit assets from Depthkit Core and Depthkit Cinema can be modified to the older structure to make them compatible with Depthkit.js using the following steps:
