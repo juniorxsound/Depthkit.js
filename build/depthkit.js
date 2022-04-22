@@ -190,16 +190,31 @@ var DepthKit = function () {
             // console.log(this.props);
 
             //Update the shader based on the properties from the JSON
-            _this.material.uniforms.width.value = _this.props.textureWidth;
-            _this.material.uniforms.height.value = _this.props.textureHeight;
-            _this.material.uniforms.mindepth.value = _this.props.nearClip;
-            _this.material.uniforms.maxdepth.value = _this.props.farClip;
-            _this.material.uniforms.focalLength.value = _this.props.depthFocalLength;
-            _this.material.uniforms.principalPoint.value = _this.props.depthPrincipalPoint;
-            _this.material.uniforms.imageDimensions.value = _this.props.depthImageSize;
-            _this.material.uniforms.crop.value = _this.props.crop;
+           if (_this.props.perspectives != undefined) {
+                _this.material.uniforms.width.value = _this.props.textureWidth;
+                _this.material.uniforms.height.value = _this.props.textureHeight;
+                _this.material.uniforms.mindepth.value = _this.props.perspectives[0].nearClip;
+                _this.material.uniforms.maxdepth.value = _this.props.perspectives[0].farClip;
+                _this.material.uniforms.focalLength.value = _this.props.perspectives[0].depthFocalLength;
+                _this.material.uniforms.principalPoint.value = _this.props.perspectives[0].depthPrincipalPoint;
+                _this.material.uniforms.imageDimensions.value = _this.props.perspectives[0].depthImageSize;
+                _this.material.uniforms.crop.value = _this.props.perspectives[0].crop;
 
-            var ex = _this.props.extrinsics;
+                var ex = _this.props.perspectives[0].extrinsics;
+            }
+            else {
+                _this.material.uniforms.width.value = _this.props.textureWidth;
+                _this.material.uniforms.height.value = _this.props.textureHeight;
+                _this.material.uniforms.mindepth.value = _this.props.nearClip;
+                _this.material.uniforms.maxdepth.value = _this.props.farClip;
+                _this.material.uniforms.focalLength.value = _this.props.depthFocalLength;
+                _this.material.uniforms.principalPoint.value = _this.props.depthPrincipalPoint;
+                _this.material.uniforms.imageDimensions.value = _this.props.depthImageSize;
+                _this.material.uniforms.crop.value = _this.props.crop; 
+
+                var ex = _this.props.extrinsics;
+
+            }
             _this.material.uniforms.extrinsics.value.set(ex["e00"], ex["e10"], ex["e20"], ex["e30"], ex["e01"], ex["e11"], ex["e21"], ex["e31"], ex["e02"], ex["e12"], ex["e22"], ex["e32"], ex["e03"], ex["e13"], ex["e23"], ex["e33"]);
 
             //Create the collider
