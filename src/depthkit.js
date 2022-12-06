@@ -20,6 +20,7 @@ const glsl = require('glslify');
 //For building the geomtery
 const VERTS_WIDE = 256;
 const VERTS_TALL = 256;
+console.log(THREE.REVISION);
 
 export default class DepthKit {
 
@@ -209,29 +210,36 @@ export default class DepthKit {
 
      static buildGeomtery() {
 
-        DepthKit.geo = new THREE.Geometry();
+        const geometry = new THREE.BufferGeometry();
 
+        // create an array of vertices
+        const vertices = [];
         for (let y = 0; y < VERTS_TALL; y++) {
             for (let x = 0; x < VERTS_WIDE; x++) {
-                DepthKit.geo.vertices.push(new THREE.Vector3(x, y, 0));
+                vertices.push(x, y, 0);
             }
         }
+
+        // create an array of faces
+        const faces = [];
         for (let y = 0; y < VERTS_TALL - 1; y++) {
             for (let x = 0; x < VERTS_WIDE - 1; x++) {
-                DepthKit.geo.faces.push(
-                    new THREE.Face3(
-                        x + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + y * (VERTS_WIDE)
-                    ));
-                DepthKit.geo.faces.push(
-                    new THREE.Face3(
-                        x + 1 + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + (y + 1) * (VERTS_WIDE)
-                    ));
+                faces.push(
+                    x + y * VERTS_WIDE,
+                    x + (y + 1) * VERTS_WIDE,
+                    (x + 1) + y * (VERTS_WIDE),
+                    x + 1 + y * VERTS_WIDE,
+                    x + (y + 1) * VERTS_WIDE,
+                    (x + 1) + (y + 1) * (VERTS_WIDE)
+                );
             }
         }
+
+        // set the attributes of the geometry
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setIndex(new THREE.Uint16BufferAttribute(faces, 1));
+
+        DepthKit.geo = geometry;
     }
 
     /*

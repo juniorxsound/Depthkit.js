@@ -27,13 +27,13 @@
     "browserify": "^14.4.0",
     "concurrently": "^3.5.1",
     "glslify": "^6.1.1",
-    "http-server": "^0.10.0",
+    "http-server": "^14.1.1",
     "uglify-js": "^3.3.23",
     "vimeo": "^2.0.2",
-    "watchify": "^3.11.0"
+    "watchify": "^4.0.0"
   },
   "dependencies": {
-    "three": "^0.87.1",
+    "three": "^0.137.0",
     "webvr-polyfill": "^0.9.36"
   },
   "browserify": {
