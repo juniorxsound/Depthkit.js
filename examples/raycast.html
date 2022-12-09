@@ -33,7 +33,7 @@
 <body>
 
     <!--Three.js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/98/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.147.0/three.min.js" integrity="sha512-GWXLkqxMENYgBdQvA/lTeOV+R2auhasgKQxjMTWBFt3Z6GJVZ9owiyAMOzz0Wt6J1ri8bf/g2kHJV0uvWpJTuw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Orbit Controls -->
     <script src="lib/OrbitControls.js"></script>
     <!--DepthKit.js-->
@@ -137,8 +137,10 @@
             //Only do that if we acctually have intersects
             if (intersects.length > 0) {
                 for (var i = 0; i < intersects.length; i++) {
-                    intersects[i].object.depthkit.setOpacity(1.0);
-                    intersects[i].object.depthkit.play();
+                    if ("depthkit" in intersects[i].object) {
+                        intersects[i].object.depthkit.setOpacity(1.0);
+                        intersects[i].object.depthkit.play();
+                    }
                 }
             } else {
                 for (var i = 0; i < depthkitObjects.length; i++) {

@@ -5,7 +5,7 @@
   "main": "build/depthkit.js",
   "scripts": {
     "start": "concurrently \"http-server -s --cors\" \"watchify src/index.js -o build/depthkit.js -v\"",
-    "build": "browserify src/index.js | uglifyjs -mc warnings=false > build/depthkit.min.js",
+    "build": "browserify src/index.js | uglifyjs > build/depthkit.min.js",
     "test": "npm run build"
   },
   "repository": {

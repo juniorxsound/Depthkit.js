@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 module.exports = function(strings) {
   if (typeof strings === 'string') strings = [strings]
   var exprs = [].slice.call(arguments,1)
@@ -83,7 +83,7 @@ var DepthKit = function () {
         this.videoTexture = new THREE.VideoTexture(this.video);
         this.videoTexture.minFilter = THREE.NearestFilter;
         this.videoTexture.magFilter = THREE.LinearFilter;
-        this.videoTexture.format = THREE.RGBFormat;
+        this.videoTexture.format = THREE.RGBAFormat;
         this.videoTexture.generateMipmaps = false;
 
         //Manages loading of assets internally
@@ -211,12 +211,11 @@ var DepthKit = function () {
 
             _this.collider = new THREE.Mesh(boxGeo, boxMat);
 
-            _this.collider.visible = false;
+            // this.collider.visible = false;
             _this.mesh.add(_this.collider);
 
             //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
-            THREE.SceneUtils.detach(_this.collider, _this.mesh, _this.mesh.parent);
-            _this.collider.position.set(0, 1, 0);
+            _this.collider.position.set(650, -200, -1900);
         });
 
         //Make sure we don't hide the character - this helps the objects in webVR
@@ -323,20 +322,26 @@ var DepthKit = function () {
     }], [{
         key: 'buildGeomtery',
         value: function buildGeomtery() {
-
-            DepthKit.geo = new THREE.Geometry();
+            var geometry = new THREE.BufferGeometry();
+            var verts = [];
+            var faces = [];
 
             for (var y = 0; y < VERTS_TALL; y++) {
                 for (var x = 0; x < VERTS_WIDE; x++) {
-                    DepthKit.geo.vertices.push(new THREE.Vector3(x, y, 0));
+                    verts.push(x, y, 0);
                 }
             }
             for (var _y = 0; _y < VERTS_TALL - 1; _y++) {
                 for (var _x2 = 0; _x2 < VERTS_WIDE - 1; _x2++) {
-                    DepthKit.geo.faces.push(new THREE.Face3(_x2 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + _y * VERTS_WIDE));
-                    DepthKit.geo.faces.push(new THREE.Face3(_x2 + 1 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + (_y + 1) * VERTS_WIDE));
+                    faces.push(_x2 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + _y * VERTS_WIDE, _x2 + 1 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + (_y + 1) * VERTS_WIDE);
                 }
             }
+
+            // set the attributes of the geometry
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+            geometry.setIndex(new THREE.Uint16BufferAttribute(faces, 1));
+
+            DepthKit.geo = geometry;
         }
     }]);
 
