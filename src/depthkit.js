@@ -51,7 +51,7 @@ export default class DepthKit {
         this.videoTexture = new THREE.VideoTexture(this.video);
         this.videoTexture.minFilter = THREE.NearestFilter;
         this.videoTexture.magFilter = THREE.LinearFilter;
-        this.videoTexture.format = THREE.RGBFormat;
+        this.videoTexture.format = THREE.RGBAFormat;
         this.videoTexture.generateMipmaps = false;
 
         //Manages loading of assets internally
@@ -191,7 +191,7 @@ export default class DepthKit {
                 this.mesh.add(this.collider);
 
                 //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
-                THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
+                // THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
                 this.collider.position.set(0,1,0);
             }
         );
@@ -208,30 +208,26 @@ export default class DepthKit {
     }
 
      static buildGeomtery() {
-
-        DepthKit.geo = new THREE.Geometry();
+        const geometry = new THREE.BufferGeometry();
+        const verts = [];
+        const faces = [];
 
         for (let y = 0; y < VERTS_TALL; y++) {
             for (let x = 0; x < VERTS_WIDE; x++) {
-                DepthKit.geo.vertices.push(new THREE.Vector3(x, y, 0));
+                verts.push(x, y, 0);
             }
         }
-        for (let y = 0; y < VERTS_TALL - 1; y++) {
-            for (let x = 0; x < VERTS_WIDE - 1; x++) {
-                DepthKit.geo.faces.push(
-                    new THREE.Face3(
-                        x + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + y * (VERTS_WIDE)
-                    ));
-                DepthKit.geo.faces.push(
-                    new THREE.Face3(
-                        x + 1 + y * VERTS_WIDE,
-                        x + (y + 1) * VERTS_WIDE,
-                        (x + 1) + (y + 1) * (VERTS_WIDE)
-                    ));
+        for (var _y = 0; _y < VERTS_TALL - 1; _y++) {
+            for (var _x2 = 0; _x2 < VERTS_WIDE - 1; _x2++) {
+                faces.push(_x2 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + _y * VERTS_WIDE, _x2 + 1 + _y * VERTS_WIDE, _x2 + (_y + 1) * VERTS_WIDE, _x2 + 1 + (_y + 1) * VERTS_WIDE);
             }
         }
+
+        // set the attributes of the geometry
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+        geometry.setIndex(new THREE.Uint16BufferAttribute(faces, 1));
+
+        DepthKit.geo = geometry;
     }
 
     /*
