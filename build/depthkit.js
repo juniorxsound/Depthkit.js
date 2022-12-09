@@ -211,12 +211,11 @@ var DepthKit = function () {
 
             _this.collider = new THREE.Mesh(boxGeo, boxMat);
 
-            _this.collider.visible = false;
+            // this.collider.visible = false;
             _this.mesh.add(_this.collider);
 
             //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
-            // THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
-            _this.collider.position.set(0, 1, 0);
+            _this.collider.position.set(650, -200, -1900);
         });
 
         //Make sure we don't hide the character - this helps the objects in webVR

@@ -186,13 +186,11 @@ export default class DepthKit {
 
                 this.collider = new THREE.Mesh(boxGeo, boxMat);
 
-
-                this.collider.visible = false;
+                // this.collider.visible = false;
                 this.mesh.add(this.collider);
 
                 //Temporary collider positioning fix - // TODO: fix that with this.props.boundsCenter
-                // THREE.SceneUtils.detach(this.collider, this.mesh, this.mesh.parent);
-                this.collider.position.set(0,1,0);
+                this.collider.position.set(650,-200,-1900);
             }
         );
 
