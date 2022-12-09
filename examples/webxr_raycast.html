@@ -35,24 +35,15 @@
     <!--Three.js-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.147.0/three.min.js" integrity="sha512-GWXLkqxMENYgBdQvA/lTeOV+R2auhasgKQxjMTWBFt3Z6GJVZ9owiyAMOzz0Wt6J1ri8bf/g2kHJV0uvWpJTuw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Three WebVR manager -->
-    <script src="lib/WebVR.js"></script>
-    <!-- WebVR Polyfill -->
-    <script src="lib/webvr-polyfill.js"></script>
+    <script src="lib/VRButton.js"></script>
     <!--DepthKit.js-->
     <script src="../build/depthkit.js"></script>
 
     <div id="info">
-        <a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple webVR example using Three.js<br/>        Written by <a href="http://orfleisher.com">juniorxsound</a><br/><br/>
-		Click page to start playback
+        <a href="http://depthkit.tv" target="_blank" rel="noopener">DepthKit.js</a> - Simple webVR example using Three.js<br/>        Written by <a href="http://orfleisher.com">juniorxsound</a>
     </div>
 
     <script>
-        //webVR Polyfill config
-        WebVRConfig = {
-            BUFFER_SCALE: 0.5, // Default: 0.5.
-            GET_VR_DISPLAYS_TIMEOUT: 5000
-        };
-
         //Some general Three.js components
         var renderer,
             scene,
@@ -60,26 +51,22 @@
             dolly,
             controls,
             raycaster,
-            mouse = new THREE.Vector2(0, 0);
+            crosshair;
 
         //DepthKit character
-        var character;
+        var character,
+            depthkitObjects;
 
         init();
 
         function init() {
-
-            //Check availablity of the WebVR API - the polyfill polyfills .getVRDisplays() but should still not find any display if there isn't one
-			WEBVR.checkAvailability().catch( function( message ) {
-				document.body.appendChild( WEBVR.getMessageContainer( message ) );
-			});
-
             //Setup renderer
-            renderer = new THREE.WebGLRenderer();
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.xr.enabled = true;
             document.body.appendChild(renderer.domElement);
+            document.body.appendChild(VRButton.createButton(renderer));
 
             // Setup scene
             scene = new THREE.Scene();
@@ -94,28 +81,18 @@
             dolly.position.set(0, 1.5, -2);
             scene.add(dolly);
 
-            // Setup webVR display/polyfill and add button
-            WEBVR.getVRDisplay(function (display) {
-                renderer.vr.setDevice(display);
-                document.body.appendChild(WEBVR.getButton(display, renderer.domElement));
-            });
-
-            //** To use webVR for Vive/Rift, Chormium requires a .webm video file
-
             //DepthKit(mesh/wire/points rendering, path to txt, path to video)
             character = new DepthKit("mesh", "../assets/Chae/Chae_Demo_Upres.txt", "../assets/Chae/Chae_Demo_Upres.webm");
 
             //Position and rotation adjustments
             character.scale.set(0.001, 0.001, 0.001);
             character.position.set(-0.75, 1.1, 1.85);
+            
+            //Set the opacity low until mouse over character
+            character.depthkit.setOpacity(0.5);
 
             //Make it loop once activated
             character.depthkit.setLoop(true);
-
-            // Click page to play
-			document.body.addEventListener('click', () => {
-				character.depthkit.play();
-			});
 
             //Add the character to the scene
             scene.add(character);
@@ -124,9 +101,44 @@
 			var gridHelper = new THREE.GridHelper(10, 10);
 			scene.add(gridHelper);
 
+            //Raycaster from the dolly position in the camera's direction
+            const xrCam = renderer.xr.getCamera(camera);
+            var camDirection = new THREE.Vector3();
+            xrCam.getWorldDirection(camDirection);
+            raycaster = new THREE.Raycaster();
+            raycaster.set(dolly.position, camDirection);
+
+            //Only intersect with depthkit objects
+            depthkitObjects = [];
+            for (var i = 0; i < scene.children.length; i++) {
+                if (scene.children[i].name === 'depthkit') {
+                    depthkitObjects.push(scene.children[i]);
+                }
+            }
+
             window.addEventListener('resize', onWindowResize, false);
 
             renderer.setAnimationLoop(() => {
+                
+                xrCam.getWorldDirection(camDirection)
+                raycaster.set(dolly.position, camDirection);
+                var intersects = raycaster.intersectObjects(depthkitObjects);
+
+                //Only do that if we acctually have intersects
+                if (intersects.length > 0) {
+                    for (var i = 0; i < intersects.length; i++) {
+                        if ("depthkit" in intersects[i].object) {
+                            intersects[i].object.depthkit.setOpacity(1.0);
+                            intersects[i].object.depthkit.play();
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < depthkitObjects.length; i++) {
+                        depthkitObjects[i].depthkit.setOpacity(0.5);
+                        depthkitObjects[i].depthkit.pause();
+                    }
+                }
+
                 renderer.render(scene, camera);
             });
         }
@@ -136,7 +148,6 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
-
     </script>
 
 </body>
