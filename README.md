@@ -6,9 +6,38 @@ The plugin was developed for [Tzina: A Symphony of Longing](https://tzina.space)
 
 ![DepthKit.js screencapture](https://raw.githubusercontent.com/juniorxsound/DepthKit.js/master/assets/gh/wire.gif)
 
-Include ```depthkit.js``` or ```depthkit.min.js``` after loading ```three.js``` in your project.
+# Install
 
-Alternatively, if you use Node.js you can install the package with npm using ```npm install depthkit``` [npm package](https://www.npmjs.com/package/depthkit)
+## Install via NPM
+
+`npm i dephtkit` and then `import { DepthKit } from 'depthkit'`  
+See [npm package](https://www.npmjs.com/package/depthkit).  
+
+## Install from CDN - es module (es6)
+
+```html
+<!-- Import maps polyfill -->
+<!-- Remove this when import maps will be widely supported -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.147.0/build/three.module.js",
+            "three/": "https://unpkg.com/three@0.147.0/"
+        }
+    }
+</script>
+<script type="module">
+    import * as THREE from 'three'
+
+    //TODO be checked once published on npm
+    import { DepthKit } from 'https://cdn.jsdelivr.net/npm/depthkit@latest/src/depthkit.js'
+    // or
+    // TODO replace remmel by juniorxsound in PR - not recommended when published on npm
+    import { DepthKit } from 'https://cdn.jsdelivr.net/gh/remmel/Depthkit.js/src/depthkit.js'
+    //...
+</script>
+```
 
 ### Creating a character
 ```JavaScript
@@ -45,18 +74,13 @@ Calling ```new DepthKit()``` returns a three.js Object3D which has all the regul
 
 [Mouse hover example](https://juniorxsound.github.io/Depthkit.js/examples/raycast.html)
 
-[Simple webVR example](https://juniorxsound.github.io/Depthkit.js/examples/webvr_simple.html)
-
-[Raycasting webVR example](https://juniorxsound.github.io/Depthkit.js/examples/webvr_raycast.html)
+[Raycasting webVR example](https://juniorxsound.github.io/Depthkit.js/examples/webxr_raycast.html)
 
 ## How to contribute:
 1. Fork/Clone/Download
-1. Install all dependcies using ```npm install```
-1. Use the following node commands:
-
-```npm run start``` uses ```concurrently``` to start an ```http-server``` and to run ```watchify``` and bundle on every change to ```build/depthkit.js```
-
-```npm run build``` to bundle and minify to ```build/depthkit.min.js```
+1. Install all dependencies using `npm install`
+1. Start http server : `npm run start`  
+1. Open http://localhost:8080/examples/simple.html
 
 ## Thanks
 Originally written by [@mrdoob](https://github.com/mrdoob) and [@obviousjim](https://github.com/obviousjim) ported and modified by [@juniorxsound](https://github.com/juniorxsound) and [@avnerus](https://github.com/Avnerus). Special thank you to [Shirin Anlen](https://github.com/ShirinStar) and all the Tzina crew, [@ZEEEVE](https://github.com/zivschneider), [@jhclaura](https://github.com/jhclaura)
