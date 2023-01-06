@@ -1,5 +1,9 @@
 //DepthKit.js plugin for Three.js
 
+import * as THREE from 'three'
+import rgbdFrag from './shaders/rgbd.frag.js'
+import rgbdVert from './shaders/rgbd.vert.js'
+
 /**
  * Originally written by
  * @author mrdoob / http://mrdoob.com
@@ -11,23 +15,14 @@
  *  @modified by avnerus / http://avner.js.org
  */
 
-//Three.js - for easy debugging and testing, should be excluded from the build
-// import * as THREE from 'three'
-
-// bundling of GLSL code
-const glsl = require('glslify');
 
 //For building the geomtery
 const VERTS_WIDE = 256;
 const VERTS_TALL = 256;
 
-export default class DepthKit {
+export class DepthKit {
 
-    constructor(_type = 'mesh', _props, _movie, _poster) {
-
-        //Load the shaders
-        let rgbdFrag = glsl.file('./shaders/rgbd.frag');
-        let rgbdVert = glsl.file('./shaders/rgbd.vert');
+    constructor(_type = 'mesh', _props, _movie, _poster = null) {
 
         //Crate video element
         this.video = document.createElement('video');
@@ -39,7 +34,7 @@ export default class DepthKit {
         this.video.setAttribute('webkit-playsinline', 'webkit-playsinline');
         this.video.setAttribute('playsinline', 'playsinline');
         this.video.src = _movie;
-        this.video.poster = _poster;
+        if(_poster) this.video.poster = _poster;
 
         //Don't autostart don't loop
         this.video.autoplay = true;

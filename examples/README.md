@@ -2,8 +2,7 @@
 
 - [**Simple**](https://github.com/juniorxsound/DepthKit.js/blob/master/examples/simple.html) - a simple Three.js scene with one DepthKit character in it
 - [**Raycast**](https://github.com/juniorxsound/DepthKit.js/blob/master/examples/raycast.html) - a Three.js scene using a ```THREE.Raycaster``` attached to the mouse position to start and pause the character
-- [**WebVR Simple**](https://github.com/juniorxsound/DepthKit.js/blob/master/examples/webvr_simple.html) - a simple Three.js scene using the WebVR API to enable rendering on VR headsets.
-- [**WebVR Raycast**](https://github.com/juniorxsound/DepthKit.js/blob/master/examples/webvr_raycast.html) - a Three.js scene using the WebVR API to enable rendering on VR headsets. ```THREE.Raycaster``` attached to the direction the user is looking at for enabling "gaze-to-play"
+- [**WebVR Raycast**](https://github.com/juniorxsound/DepthKit.js/blob/master/examples/webxr_raycast.html) - a Three.js scene using the WebVR API to enable rendering on VR headsets. ```THREE.Raycaster``` attached to the direction the user is looking at for enabling "gaze-to-play"
 
 **Notes:**
 - Please note that since Chromium for WebVR doesn't support ```.mp4``` playback the video needs to be converted into ```.webm```

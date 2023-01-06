@@ -1,3 +1,7 @@
+
+// language=glsl
+export default `
+
 uniform float mindepth;
 uniform float maxdepth;
 
@@ -129,3 +133,4 @@ void main() {
 
     gl_Position = projectionMatrix * modelViewMatrix * worldPos;
 }
+`
