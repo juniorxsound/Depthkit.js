@@ -31,10 +31,10 @@ See [npm package](https://www.npmjs.com/package/depthkit).
     import * as THREE from 'three'
 
     //TODO be checked once published on npm
-    import { DepthKit } from 'https://cdn.jsdelivr.net/npm/depthkit@latest/src/dephkit.js'
+    import { DepthKit } from 'https://cdn.jsdelivr.net/npm/depthkit@latest/src/depthkit.js'
     // or
-    //TODO to be checked once on github - replace remmel by juniorxsound in PR - not recommented when published on npm
-    import { DepthKit } from 'https://cdn.jsdelivr.net/gh/remmel/Depthkit.js/src/dephkit.js'
+    // TODO replace remmel by juniorxsound in PR - not recommended when published on npm
+    import { DepthKit } from 'https://cdn.jsdelivr.net/gh/remmel/Depthkit.js/src/depthkit.js'
     //...
 </script>
 ```
